@@ -292,7 +292,7 @@ function Studio() {
             <div className="mono" style={{ color: "var(--muted)", marginBottom: 10 }}>— fettuccia da sarta</div>
             <Tape />
           </div>
-          <div className="paper-pin" style={{ "--rot": "-1.5deg", maxWidth: 380 }}>
+          <div className="paper-pin" style={{ "--rot": "-1.5deg", maxWidth: "min(380px, 100%)" }}>
             <div className="mono" style={{ color: "var(--muted)", marginBottom: 10 }}>Lista del giorno · 12 mag</div>
             <ul style={{ listStyle: "none", fontFamily: "'Caveat', cursive", fontSize: 22, lineHeight: 1.55, color: "var(--ink-2)" }}>
               <li>✓ carving fronte Anouk</li>
@@ -738,11 +738,67 @@ function ProductModal({ doll, onClose, onAdd }) {
   );
 }
 
+/* ─── Mobile menu drawer ─── */
+function MobileMenu({ open, onClose }) {
+  const links = [
+    { label: "Collezione", href: "#gallery" },
+    { label: "Atelier", href: "#craft" },
+    { label: "Diario", href: "#" },
+    { label: "Cerca", href: "#" },
+    { label: "Accedi", href: "#" },
+  ];
+  const handleLink = (href) => {
+    onClose();
+    if (href !== "#") {
+      setTimeout(() => { document.querySelector(href)?.scrollIntoView({ behavior: "smooth" }); }, 350);
+    }
+  };
+  return (
+    <>
+      <div className={`mobile-menu-backdrop ${open ? "open" : ""}`} onClick={onClose}></div>
+      <div className={`mobile-menu ${open ? "open" : ""}`}>
+        <div className="mobile-menu-head">
+          <span className="mobile-menu-brand">dudidolls</span>
+          <button className="mobile-menu-close" onClick={onClose} aria-label="Chiudi menu">✕</button>
+        </div>
+        <nav className="mobile-menu-links">
+          {links.map((l) => (
+            <a key={l.label} className="mobile-menu-link" href={l.href}
+               onClick={(e) => { e.preventDefault(); handleLink(l.href); }}>
+              {l.label}
+            </a>
+          ))}
+        </nav>
+        <div className="mobile-menu-foot">Lana · Sudtirolo · IT</div>
+      </div>
+    </>
+  );
+}
+
+/* ─── Mobile bottom bar ─── */
+function MobileBottomBar({ cartCount, onCart }) {
+  return (
+    <div className="mobile-bottom-bar">
+      <button className="btn-primary" onClick={onCart}>
+        <span>Carrello ({cartCount})</span>
+        <span className="arrow">→</span>
+      </button>
+    </div>
+  );
+}
+
 /* ─── Top nav ─── */
-function Nav({ onCart, cartCount }) {
+function Nav({ onCart, cartCount, onMenuOpen }) {
   return (
     <nav className="nav">
       <div className="nav-left">
+        <button className="nav-hamburger" onClick={onMenuOpen} aria-label="Apri menu">
+          <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
+            <rect width="20" height="2" rx="1" fill="currentColor"/>
+            <rect y="6" width="14" height="2" rx="1" fill="currentColor"/>
+            <rect y="12" width="20" height="2" rx="1" fill="currentColor"/>
+          </svg>
+        </button>
         <a className="nav-link" href="#gallery">Collezione</a>
         <a className="nav-link" href="#craft">Atelier</a>
         <a className="nav-link" href="#">Diario</a>
@@ -786,6 +842,7 @@ function App() {
   const [progress, setProgress] = useState(0);
   const [cart, setCart] = useState([]);
   const [drawer, setDrawer] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [active, setActive] = useState(null);
   const [toast, setToast] = useState({ show: false, message: "" });
 
@@ -828,7 +885,9 @@ function App() {
   return (
     <>
       <div className="scroll-progress"><div className="bar" style={{ width: `${progress * 100}%` }}></div></div>
-      <Nav onCart={() => setDrawer(true)} cartCount={cartCount} />
+      <Nav onCart={() => setDrawer(true)} cartCount={cartCount} onMenuOpen={() => setMenuOpen(true)} />
+      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <MobileBottomBar cartCount={cartCount} onCart={() => setDrawer(true)} />
       <Hero scrollY={scrollY} intensity={t.scrollIntensity} showMarks={t.craftMarks} />
       {t.showMarquee && <Marquee />}
       <Selvedge />

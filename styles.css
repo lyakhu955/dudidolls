@@ -926,6 +926,83 @@ section { position: relative; }
 }
 .scroll-progress .bar { height: 100%; background: var(--accent); width: 0%; transition: width .1s; }
 
+/* ─── Mobile menu drawer ─── */
+.nav-hamburger {
+  display: none;
+  align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  border: 0; background: none; cursor: pointer;
+  color: inherit; flex-shrink: 0;
+}
+.nav-hamburger svg { display: block; }
+
+.mobile-menu-backdrop {
+  position: fixed; inset: 0; z-index: 70;
+  background: rgba(28, 25, 22, 0.5);
+  opacity: 0; pointer-events: none;
+  transition: opacity .35s;
+}
+.mobile-menu-backdrop.open { opacity: 1; pointer-events: auto; }
+
+.mobile-menu {
+  position: fixed; inset: 0 auto 0 0; z-index: 71;
+  width: 280px;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform .35s cubic-bezier(.22,.61,.36,1);
+  box-shadow: 4px 0 24px rgba(28,25,22,0.18);
+}
+.mobile-menu.open { transform: translateX(0); }
+
+.mobile-menu-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--line);
+}
+.mobile-menu-brand {
+  font-family: var(--serif); font-style: italic; font-size: 22px;
+  letter-spacing: -0.02em; color: var(--ink);
+}
+.mobile-menu-close {
+  width: 36px; height: 36px;
+  border: 1px solid var(--line); border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: var(--mono); font-size: 13px; cursor: pointer;
+  background: none; color: var(--ink);
+}
+.mobile-menu-links {
+  flex: 1; padding: 24px;
+  display: flex; flex-direction: column; gap: 0;
+}
+.mobile-menu-link {
+  display: block;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink); opacity: 0.85;
+}
+.mobile-menu-link:hover { opacity: 1; }
+.mobile-menu-foot {
+  padding: 24px;
+  border-top: 1px solid var(--line);
+  font-family: var(--mono); font-size: 10px; color: var(--muted);
+}
+
+/* ─── Mobile bottom bar ─── */
+.mobile-bottom-bar {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  padding: 8px 16px 12px;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -4px 16px rgba(28,25,22,0.1);
+}
+.mobile-bottom-bar .btn-primary {
+  padding: 14px 20px;
+  font-size: 12px;
+}
+
 /* responsive-ish */
 @media (max-width: 900px) {
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
@@ -947,7 +1024,12 @@ section { position: relative; }
   .nav-right { gap: 14px; }
   .nav-brand { font-size: 18px; }
   .nav-link:not(.nav-brand) { display: none; }
-  .nav-right .nav-link:last-child { display: inline-flex; }
+  .nav-right .nav-link:last-child { display: none; }
+  .nav-hamburger { display: inline-flex; }
+
+  /* Bottom bar */
+  .mobile-bottom-bar { display: block; }
+  body { padding-bottom: 72px; }
 
   /* Hero */
   .hero { padding: 72px 20px 24px; }
@@ -1012,6 +1094,9 @@ section { position: relative; }
   .drawer-h { padding: 16px 20px; }
   .drawer-body { padding: 8px 20px; }
   .drawer-f { padding: 16px 20px; }
+
+  /* Touch targets — qty buttons */
+  .cart-item .qty button { min-width: 36px; min-height: 36px; width: 36px; height: 36px; }
 
   /* Stitch divider & selvedge */
   .stitch-divider { margin: 0 20px; }
@@ -1098,12 +1183,20 @@ section { position: relative; }
   .drawer-body { padding: 8px 16px; }
   .drawer-f { padding: 14px 16px; }
 
-  /* Cart item stack */
-  .cart-item { grid-template-columns: 1fr; gap: 10px; padding: 16px 0; text-align: center; }
-  .cart-item-img { width: 64px; margin: 0 auto; }
+  /* Cart item — row layout instead of centered stack */
+  .cart-item { display: flex; gap: 12px; align-items: flex-start; text-align: left; padding: 16px 0; }
+  .cart-item-img { width: 56px; flex-shrink: 0; margin: 0; }
   .cart-item h4 { font-size: 18px; }
   .cart-item .price { font-size: 14px; }
   .cart-item .remove { margin-top: 4px; }
+
+  /* Schema callout annotations overflow on small screens */
+  .schema-callout { display: none; }
+
+  /* Decorative marks — too cluttered at 320-375px */
+  .craft-bg .mark-grain,
+  .craft-bg .mark-dim,
+  .craft-bg .mark-note { display: none; }
 
   /* Divider margins */
   .stitch-divider { margin: 0 16px; }
