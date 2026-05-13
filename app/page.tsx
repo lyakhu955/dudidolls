@@ -1,6 +1,5 @@
 import Nav from "@/components/nav/Nav";
 import MobileMenu from "@/components/nav/MobileMenu";
-import MobileBottomBar from "@/components/nav/MobileBottomBar";
 import HeroIntro from "@/components/intro/HeroIntro";
 import HeroContent from "@/components/sections/HeroContent";
 import Marquee from "@/components/sections/Marquee";
@@ -23,8 +22,6 @@ export default function Home() {
       <ScrollProgress />
       <Nav />
       <MobileMenu />
-      <MobileBottomBar />
-
       <HeroIntro>
         <HeroContent />
       </HeroIntro>
