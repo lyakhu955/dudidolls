@@ -25,37 +25,48 @@ export default function HeroIntro({ children }: { children: ReactNode }) {
       const st = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: "bottom top",
-        scrub: 0.5,
+        end: "+=320vh",
+        scrub: 1.2,
+        pin: true,
+        pinSpacing: true,
         onUpdate: (self) => {
           const p = self.progress;
 
-          // Phase 1 (0 → 0.15): scroll cue fades
-          if (p < 0.15) {
-            const k = p / 0.15;
+          // Phase 1 (0 → 0.08): scroll cue fades
+          if (p < 0.08) {
+            const k = p / 0.08;
             gsap.set(cueRef.current, { autoAlpha: 1 - k });
           }
-          // Phase 2 (0.15 → 0.70): text splits apart
-          else if (p < 0.70) {
-            const splitP = (p - 0.15) / 0.55;
-            const ease = splitP * (2 - splitP);
-            gsap.set(dudiRef.current, { x: `-${ease * 40}vw` });
-            gsap.set(dollsRef.current, { x: `${ease * 40}vw` });
+          // Phase 2 (0.08 → 0.55): text splits apart
+          else if (p < 0.55) {
+            const splitP = (p - 0.08) / 0.47;
+            const e = splitP * (2 - splitP); // ease-out quad
+            gsap.set(dudiRef.current, { x: `-${e * 42}vw`, autoAlpha: 1 });
+            gsap.set(dollsRef.current, { x: `${e * 42}vw`, autoAlpha: 1 });
             gsap.set(cueRef.current, { autoAlpha: 0 });
           }
-          // Phase 3 (0.70 → 0.90): text fades
-          else if (p < 0.90) {
-            const fadeP = (p - 0.70) / 0.20;
-            gsap.set(dudiRef.current, { x: "-40vw", autoAlpha: 1 - fadeP });
-            gsap.set(dollsRef.current, { x: "40vw", autoAlpha: 1 - fadeP });
-            gsap.set(contentRef.current, { autoAlpha: 0 });
+          // Phase 3 (0.55 → 0.72): text fades, stage holds solid
+          else if (p < 0.72) {
+            const fadeP = (p - 0.55) / 0.17;
+            const e = fadeP * fadeP;
+            gsap.set(dudiRef.current, { x: "-42vw", autoAlpha: 1 - e });
+            gsap.set(dollsRef.current, { x: "42vw", autoAlpha: 1 - e });
+            gsap.set(stageRef.current, { autoAlpha: 1, scale: 1 });
+            gsap.set(contentRef.current, { autoAlpha: 0, y: 0 });
           }
-          // Phase 4 (0.90 → 1): stage fades completely, content reveals
+          // Phase 4 (0.72 → 1.0): stage dissolves + content breathes in — più spazio scroll
           else {
-            const revealP = (p - 0.90) / 0.10;
-            const ease = revealP * (2 - revealP);
-            gsap.set(stageRef.current, { autoAlpha: 1 - ease });
-            gsap.set(contentRef.current, { autoAlpha: ease });
+            const rP = (p - 0.72) / 0.28;
+            const stageE = rP * (2 - rP);
+            const contentE = rP * rP;
+            gsap.set(stageRef.current, {
+              autoAlpha: 1 - stageE,
+              scale: 1 + stageE * 0.03,
+            });
+            gsap.set(contentRef.current, {
+              autoAlpha: contentE,
+              y: `${(1 - contentE) * 32}px`,
+            });
           }
         },
       });
@@ -70,15 +81,14 @@ export default function HeroIntro({ children }: { children: ReactNode }) {
     <section
       ref={sectionRef}
       className="hero-intro"
-      style={{ height: "120vh", position: "relative", zIndex: 20 }}
+      style={{ height: "100vh", position: "relative", zIndex: 20 }}
     >
       {/* Site content behind — sticky so it stays in view during intro */}
       <div
         ref={contentRef}
         style={{
-          position: "sticky",
-          top: 0,
-          height: "100vh",
+          position: "absolute",
+          inset: 0,
           zIndex: 1,
           overflow: "hidden",
         }}
@@ -90,14 +100,11 @@ export default function HeroIntro({ children }: { children: ReactNode }) {
       <div
         ref={stageRef}
         style={{
-          position: "sticky",
-          top: 0,
-          width: "100%",
-          height: "100vh",
+          position: "absolute",
+          inset: 0,
           overflow: "hidden",
           zIndex: 10,
           background: "var(--bg)",
-          marginTop: "-100vh",
           display: "grid",
           placeItems: "center",
         }}

@@ -509,6 +509,15 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .mono  { font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
 .italic { font-style: italic; }
 
+/* ─── Mobile bottom bar ─── */
+.mobile-bottom-bar {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  padding: 12px 16px 20px;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+}
+
 /* ─── Top nav ─── */
 .nav {
   position: fixed; inset: 0 0 auto 0; z-index: 60;
@@ -661,7 +670,7 @@ section { position: relative; }
 .featured-left .quote::before { content: "“"; color: var(--accent); margin-right: 4px; }
 .featured-left .quote::after  { content: "”"; color: var(--accent); }
 .featured-left .by { margin-top: 24px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
-.featured-right { aspect-ratio: 4/3; border-radius: 4px; overflow: hidden; }
+.featured-right { aspect-ratio: 4/3; border-radius: 4px; overflow: hidden; position: relative; }
 
 .process { padding: 80px 32px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .process-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 32px; }
@@ -997,6 +1006,7 @@ section { position: relative; }
 }
 
 @media (max-width: 768px) {
+  .mobile-bottom-bar { display: block; }
   .nav { padding: 14px 20px; font-size: 10px; }
   .nav-left { gap: 14px; }
   .nav-right { gap: 14px; }

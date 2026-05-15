@@ -1,4 +1,5 @@
 "use client";
+import ThreadSeparator from "@/components/motion/ThreadSeparator";
 
 export default function HeroContent() {
   const scrollToGallery = () => {
@@ -7,6 +8,7 @@ export default function HeroContent() {
 
   return (
     <header className="hero">
+      <ThreadSeparator />
       <div className="hero-bottom-row">
         <p className="hero-tagline">
           Bambole d'autore cucite una alla volta,
