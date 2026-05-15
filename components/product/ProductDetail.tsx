@@ -1,14 +1,13 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
-import { dollImage, type Doll } from "@/lib/data";
+import { type Doll } from "@/lib/data";
 import { useStore } from "@/lib/store";
-
-const THUMBS = ["ritratto", "dettaglio", "schiena", "scatola"];
 
 export default function ProductDetail({ doll }: { doll: Doll }) {
   const [active, setActive] = useState(0);
   const addToCart = useStore((s) => s.addToCart);
+  const images = doll.images;
 
   return (
     <div className="product-page">
@@ -16,26 +15,28 @@ export default function ProductDetail({ doll }: { doll: Doll }) {
         <div className="product-gallery">
           <div className="product-main-img">
             <Image
-              src={dollImage(doll.id)}
-              alt={`${THUMBS[active]} · ${doll.name}`}
+              src={images[active]}
+              alt={`${doll.name} · foto ${active + 1}`}
               fill
               priority
               sizes="(max-width: 900px) 100vw, 50vw"
               style={{ objectFit: "cover" }}
             />
           </div>
-          <div className="product-thumbs">
-            {THUMBS.map((t, i) => (
-              <div
-                key={t}
-                className="product-thumb"
-                onClick={() => setActive(i)}
-                style={{ outline: i === active ? "1px solid var(--accent)" : "none" }}
-              >
-                <Image src={dollImage(doll.id)} alt={`${t} · ${doll.name}`} fill sizes="80px" style={{ objectFit: "cover" }} />
-              </div>
-            ))}
-          </div>
+          {images.length > 1 && (
+            <div className="product-thumbs">
+              {images.map((src, i) => (
+                <div
+                  key={`${doll.id}-${i}`}
+                  className="product-thumb"
+                  onClick={() => setActive(i)}
+                  style={{ outline: i === active ? "1px solid var(--accent)" : "none" }}
+                >
+                  <Image src={src} alt={`${doll.name} · anteprima ${i + 1}`} fill sizes="80px" style={{ objectFit: "cover" }} />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="product-info">

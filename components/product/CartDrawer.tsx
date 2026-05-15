@@ -7,7 +7,6 @@ export default function CartDrawer() {
   const open = useStore((s) => s.drawerOpen);
   const setDrawer = useStore((s) => s.setDrawer);
   const cart = useStore((s) => s.cart);
-  const changeQty = useStore((s) => s.changeQty);
   const remove = useStore((s) => s.remove);
   const total = useCartTotal();
 
@@ -44,14 +43,12 @@ export default function CartDrawer() {
                   <div className="meta">
                     {it.edition} · {it.height}
                   </div>
-                  <div className="qty">
-                    <button onClick={() => changeQty(it.id, -1)}>−</button>
-                    <span>{it.qty}</span>
-                    <button onClick={() => changeQty(it.id, +1)}>+</button>
+                  <div className="qty mono" style={{ marginTop: 8, fontSize: 11, color: "var(--muted)" }}>
+                    Qty: 1
                   </div>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <div className="price">€{it.price * it.qty}</div>
+                  <div className="price">€{it.price}</div>
                   <button className="remove" onClick={() => remove(it.id)}>
                     Rimuovi
                   </button>

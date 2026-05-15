@@ -33,10 +33,11 @@ export const useStore = create<Store>((set, get) => ({
   addToCart: (doll) => {
     const cart = get().cart;
     const ex = cart.find((i) => i.id === doll.id);
-    const next = ex
-      ? cart.map((i) => (i.id === doll.id ? { ...i, qty: i.qty + 1 } : i))
-      : [...cart, { ...doll, qty: 1 }];
-    set({ cart: next, modalDoll: null });
+    if (ex) {
+      get().showToast(`${doll.name} è già nel carrello — pezzo unico`);
+      return;
+    }
+    set({ cart: [...cart, { ...doll, qty: 1 }], modalDoll: null });
     get().showToast(`${doll.name} aggiunta al carrello`);
   },
   changeQty: (id, delta) =>

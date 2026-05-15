@@ -1,9 +1,11 @@
+"use client";
 import Image from "next/image";
-import Link from "next/link";
 import { DOLLS, dollImage } from "@/lib/data";
+import { useStore } from "@/lib/store";
 
 export default function OtherDolls({ excludeId }: { excludeId: string }) {
   const others = DOLLS.filter((d) => d.id !== excludeId);
+  const setModal = useStore((s) => s.setModal);
   return (
     <section className="others">
       <div className="others-head">
@@ -19,7 +21,7 @@ export default function OtherDolls({ excludeId }: { excludeId: string }) {
       </div>
       <div className="others-grid">
         {others.map((doll) => (
-          <Link key={doll.id} href={`/product/${doll.id}`} className="card" style={{ textDecoration: "none" }}>
+          <div key={doll.id} role="button" tabIndex={0} onClick={() => setModal(doll)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setModal(doll); }} className="card" style={{ textDecoration: "none", cursor: "pointer" }}>
             <div className="card-img">
               <Image
                 src={dollImage(doll.id)}
@@ -42,7 +44,7 @@ export default function OtherDolls({ excludeId }: { excludeId: string }) {
               </div>
               <div className="card-price">€{doll.price}</div>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
     </section>
