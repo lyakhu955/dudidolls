@@ -96,6 +96,16 @@ export default function ProductModal() {
               sizes="(max-width: 768px) 100vw, 60vw"
               style={{ objectFit: "contain" }}
             />
+            <button
+              className="modal-zoom-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                openLightbox(active);
+              }}
+              aria-label="Ingrandisci foto"
+            >
+              🔍 Ingrandisci
+            </button>
           </div>
           {images.length > 1 && (
             <div className="modal-thumbs">
