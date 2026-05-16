@@ -60,14 +60,20 @@ export default function ProductDetail({ doll }: { doll: Doll }) {
               </div>
               <div className="product-price">€{doll.price}</div>
             </div>
-            <button
-              className="btn-primary"
-              style={{ width: "auto", paddingLeft: 28, paddingRight: 24 }}
-              onClick={() => addToCart(doll)}
-            >
-              <span>Aggiungi al carrello</span>
-              <span className="arrow" style={{ marginLeft: 14 }}>→</span>
-            </button>
+            {doll.sold ? (
+              <div style={{ fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 20, color: "var(--accent)", padding: "14px 0" }}>
+                Questa bambola ha trovato casa.
+              </div>
+            ) : (
+              <button
+                className="btn-primary"
+                style={{ width: "auto", paddingLeft: 28, paddingRight: 24 }}
+                onClick={() => addToCart(doll)}
+              >
+                <span>Aggiungi al carrello</span>
+                <span className="arrow" style={{ marginLeft: 14 }}>→</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

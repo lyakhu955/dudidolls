@@ -26,6 +26,16 @@ export default function Footer() {
           <li><Link href="/accedi">Contatti</Link></li>
         </ul>
       </div>
+      <div>
+        <h5>Legale</h5>
+        <ul>
+          <li><Link href="/privacy">Privacy Policy</Link></li>
+          <li><Link href="/cookie">Cookie Policy</Link></li>
+          <li><Link href="/termini">Termini di Vendita</Link></li>
+          <li><Link href="/recesso">Diritto di Recesso</Link></li>
+          <li><Link href="/spedizioni">Spedizioni</Link></li>
+        </ul>
+      </div>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 18 }}>
         <h5>Sigillato a mano</h5>
         <WaxSeal rot={-10} />
@@ -35,6 +45,11 @@ export default function Footer() {
       </div>
       <div className="footer-bottom">
         <div>© 2026 dudidolls · Cucito a mano fra le mele</div>
+        <div>
+          <Link href="/privacy">Privacy</Link> ·{" "}
+          <Link href="/cookie">Cookie</Link> ·{" "}
+          <Link href="/termini">Termini</Link>
+        </div>
         <div><a href="#">IT</a> · <a href="#">EN</a> · <a href="#">DE</a></div>
       </div>
     </footer>

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Instrument_Serif, DM_Sans, JetBrains_Mono, Caveat } from "next/font/google";
 import LenisProvider from "@/providers/LenisProvider";
+import CookieBanner from "@/components/CookieBanner";
 import "./globals.css";
 
 const instrument = Instrument_Serif({
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body>
         <LenisProvider>{children}</LenisProvider>
+        <CookieBanner />
       </body>
     </html>
   );

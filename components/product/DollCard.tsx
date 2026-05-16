@@ -29,9 +29,9 @@ export default function DollCard({ doll }: { doll: Doll }) {
         role="button"
         tabIndex={0}
         aria-label={`Apri dettagli: ${doll.name}, ${doll.italic}`}
-        onClick={() => setModal(doll)}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setModal(doll); }}
-        style={{ textDecoration: "none", color: "inherit", display: "block", cursor: "pointer" }}
+        onClick={() => { if (!doll.sold) setModal(doll); }}
+        onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && !doll.sold) setModal(doll); }}
+        style={{ textDecoration: "none", color: "inherit", display: "block", cursor: doll.sold ? "default" : "pointer" }}
       >
         <div className="card-img" ref={ref}>
           <div style={{ width: "100%", height: "100%", transform: `translateY(${parallax}px) scale(1.08)`, position: "relative" }}>
@@ -45,6 +45,22 @@ export default function DollCard({ doll }: { doll: Doll }) {
           </div>
           {doll.tag === "new" && <span className="card-tag">nuova</span>}
           {doll.tag === "scarce" && <span className="card-tag scarce">ultima</span>}
+          {doll.sold && (
+            <div style={{
+              position: "absolute", inset: 0,
+              background: "rgba(244, 237, 225, 0.85)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              zIndex: 5,
+            }}>
+              <span style={{
+                fontFamily: "var(--serif)", fontStyle: "italic",
+                fontSize: "clamp(24px, 4vw, 36px)", color: "var(--ink)",
+                letterSpacing: "-0.02em",
+              }}>
+                Venduta
+              </span>
+            </div>
+          )}
         </div>
         <div className="card-info">
           <div>

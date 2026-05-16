@@ -59,6 +59,25 @@ export const useStore = create<Store>((set, get) => ({
   hideToast: () => set((s) => ({ toast: { ...s.toast, show: false } })),
 }));
 
+// Persist cart to localStorage
+if (typeof window !== "undefined") {
+  // Load saved cart on init
+  try {
+    const saved = localStorage.getItem("dudidolls-cart");
+    if (saved) {
+      const parsed = JSON.parse(saved) as CartItem[];
+      useStore.setState({ cart: parsed });
+    }
+  } catch {}
+
+  // Subscribe to cart changes and save
+  useStore.subscribe((state) => {
+    try {
+      localStorage.setItem("dudidolls-cart", JSON.stringify(state.cart));
+    } catch {}
+  });
+}
+
 export function useCartCount(): number {
   return useStore((s) => s.cart.reduce((sum, i) => sum + i.qty, 0));
 }

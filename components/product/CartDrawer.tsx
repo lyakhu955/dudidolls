@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import Image from "next/image";
 import { dollImage } from "@/lib/data";
 import { useStore, useCartTotal } from "@/lib/store";
@@ -9,6 +10,29 @@ export default function CartDrawer() {
   const cart = useStore((s) => s.cart);
   const remove = useStore((s) => s.remove);
   const total = useCartTotal();
+  const [loading, setLoading] = useState(false);
+
+  const checkout = async () => {
+    if (cart.length === 0) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: cart.map((i) => ({ id: i.id, qty: i.qty })) }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Errore nel checkout: " + (data.error || "riprova"));
+      }
+    } catch {
+      alert("Errore di rete, riprova.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -63,9 +87,9 @@ export default function CartDrawer() {
               <span className="label">Totale</span>
               <span className="amount">€{total}</span>
             </div>
-            <button className="btn-primary">
-              <span>Vai al checkout</span>
-              <span className="arrow">→</span>
+            <button className="btn-primary" onClick={checkout} disabled={loading}>
+              <span>{loading ? "Caricamento…" : "Vai al checkout"}</span>
+              {!loading && <span className="arrow">→</span>}
             </button>
           </div>
         )}
