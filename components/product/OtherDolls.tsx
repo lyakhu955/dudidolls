@@ -1,6 +1,5 @@
 "use client";
 import Image from "next/image";
-import { dollImage } from "@/lib/data";
 import type { Doll } from "@/lib/data";
 import { useStore } from "@/lib/store";
 
@@ -25,7 +24,7 @@ export default function OtherDolls({ excludeId, dolls }: { excludeId: string; do
           <div key={doll.id} role="button" tabIndex={0} onClick={() => setModal(doll)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setModal(doll); }} className="card" style={{ textDecoration: "none", cursor: "pointer" }}>
             <div className="card-img">
               <Image
-                src={dollImage(doll.id)}
+                src={doll.images[0] || "/foto/hero.jpg"}
                 alt={`ritratto · ${doll.name}`}
                 fill
                 sizes="(max-width: 768px) 50vw, 25vw"

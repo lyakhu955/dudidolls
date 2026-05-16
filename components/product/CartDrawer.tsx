@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import { dollImage } from "@/lib/data";
+
 import { useStore, useCartTotal } from "@/lib/store";
 
 export default function CartDrawer() {
@@ -58,7 +58,7 @@ export default function CartDrawer() {
             cart.map((it) => (
               <div className="cart-item" key={it.id}>
                 <div className="cart-item-img">
-                  <Image src={dollImage(it.id)} alt={it.name} fill sizes="80px" style={{ objectFit: "cover" }} />
+                  <Image src={it.images[0] || "/foto/hero.jpg"} alt={it.name} fill sizes="80px" style={{ objectFit: "cover" }} />
                 </div>
                 <div>
                   <h4>

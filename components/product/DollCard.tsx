@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import Reveal from "@/components/motion/Reveal";
-import { dollImage, type Doll } from "@/lib/data";
+import type { Doll } from "@/lib/data";
 import { useStore } from "@/lib/store";
 
 export default function DollCard({ doll }: { doll: Doll }) {
@@ -36,7 +36,7 @@ export default function DollCard({ doll }: { doll: Doll }) {
         <div className="card-img" ref={ref}>
           <div style={{ width: "100%", height: "100%", transform: `translateY(${parallax}px) scale(1.08)`, position: "relative" }}>
             <Image
-              src={dollImage(doll.id)}
+              src={doll.images[0] || "/foto/hero.jpg"}
               alt={`ritratto · ${doll.name}`}
               fill
               sizes="(max-width: 480px) 100vw, (max-width: 900px) 50vw, 25vw"
