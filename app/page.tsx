@@ -17,6 +17,8 @@ import Toast from "@/components/product/Toast";
 import ScrollProgress from "@/components/motion/ScrollProgress";
 import { getAllDolls } from "@/lib/sanity.queries";
 
+export const revalidate = 60;
+
 export default async function Home() {
   const dolls = await getAllDolls();
   return (

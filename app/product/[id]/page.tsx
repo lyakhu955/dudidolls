@@ -12,6 +12,9 @@ import ProductDetail from "@/components/product/ProductDetail";
 import OtherDolls from "@/components/product/OtherDolls";
 import { getDollById, getAllDolls } from "@/lib/sanity.queries";
 
+export const revalidate = 60;
+export const dynamicParams = true;
+
 type Params = { id: string };
 
 export async function generateStaticParams(): Promise<Params[]> {
