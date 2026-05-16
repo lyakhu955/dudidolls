@@ -15,8 +15,10 @@ import CartDrawer from "@/components/product/CartDrawer";
 import ProductModal from "@/components/product/ProductModal";
 import Toast from "@/components/product/Toast";
 import ScrollProgress from "@/components/motion/ScrollProgress";
+import { getAllDolls } from "@/lib/sanity.queries";
 
-export default function Home() {
+export default async function Home() {
+  const dolls = await getAllDolls();
   return (
     <>
       <ScrollProgress />
@@ -30,7 +32,7 @@ export default function Home() {
       <Selvedge />
       <Studio />
       <StitchDivider id="01" label="taglio · imbastitura · rifinitura" />
-      <Gallery />
+      <Gallery dolls={dolls} />
       <StitchDivider id="02" label="il rituale del fare" />
       <Craft />
       <StitchDivider id="03" label="vivagno · margine 1,5 cm" />

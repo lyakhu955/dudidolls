@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe";
-import { findDoll } from "@/lib/data";
+import { getDollById } from "@/lib/sanity.queries";
 
 export const dynamic = "force-dynamic";
 
@@ -12,24 +12,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Carrello vuoto" }, { status: 400 });
     }
 
-    const lineItems = items.map((item) => {
-      const doll = findDoll(item.id);
-      if (!doll) throw new Error(`Bambola non trovata: ${item.id}`);
+    const lineItems = await Promise.all(
+      items.map(async (item) => {
+        const doll = await getDollById(item.id);
+        if (!doll) throw new Error(`Bambola non trovata: ${item.id}`);
 
-      return {
-        price_data: {
-          currency: "eur",
-          product_data: {
-            name: `${doll.name} — ${doll.italic}`,
-            description: doll.desc,
-            images: [`${process.env.NEXT_PUBLIC_SITE_URL}${doll.images[0]}`],
-            metadata: { doll_id: doll.id, edition: doll.edition },
+        return {
+          price_data: {
+            currency: "eur",
+            product_data: {
+              name: `${doll.name} — ${doll.italic}`,
+              description: doll.desc,
+              images: [`${process.env.NEXT_PUBLIC_SITE_URL}${doll.images[0]}`],
+              metadata: { doll_id: doll.id, edition: doll.edition },
+            },
+            unit_amount: doll.price * 100, // Stripe uses cents
           },
-          unit_amount: doll.price * 100, // Stripe uses cents
-        },
-        quantity: item.qty,
-      };
-    });
+          quantity: item.qty,
+        };
+      })
+    );
 
     const session = await getStripe().checkout.sessions.create({
       mode: "payment",

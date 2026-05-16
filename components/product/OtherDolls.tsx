@@ -1,10 +1,11 @@
 "use client";
 import Image from "next/image";
-import { DOLLS, dollImage } from "@/lib/data";
+import { dollImage } from "@/lib/data";
+import type { Doll } from "@/lib/data";
 import { useStore } from "@/lib/store";
 
-export default function OtherDolls({ excludeId }: { excludeId: string }) {
-  const others = DOLLS.filter((d) => d.id !== excludeId);
+export default function OtherDolls({ excludeId, dolls }: { excludeId: string; dolls: Doll[] }) {
+  const others = dolls.filter((d) => d.id !== excludeId);
   const setModal = useStore((s) => s.setModal);
   return (
     <section className="others">

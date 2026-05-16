@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Instrument_Serif, DM_Sans, JetBrains_Mono, Caveat } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import LenisProvider from "@/providers/LenisProvider";
 import CookieBanner from "@/components/CookieBanner";
 import "./globals.css";
@@ -38,6 +40,10 @@ export const metadata: Metadata = {
   description:
     "Bambole d'autore cucite una alla volta tra le valli del Sudtirolo. Ogni pezzo è unico, firmato, e ha già un nome.",
   metadataBase: new URL("https://dudidolls.vercel.app"),
+  keywords: ["bambole artigianali", "bambole d'autore", "handmade dolls", "dudidolls", "Sudtirolo"],
+  authors: [{ name: "Simona" }],
+  robots: { index: true, follow: true },
+  alternates: { canonical: "https://dudidolls.vercel.app" },
   openGraph: {
     title: "dudidolls",
     description: "Bambole d'autore cucite a mano",
@@ -61,8 +67,31 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${instrument.variable} ${dmSans.variable} ${jetbrains.variable} ${caveat.variable}`}
     >
       <body>
-        <LenisProvider>{children}</LenisProvider>
+        <LenisProvider>
+          {children}
+          <Analytics />
+          <SpeedInsights />
+        </LenisProvider>
         <CookieBanner />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "dudidolls",
+              url: "https://dudidolls.vercel.app",
+              logo: "https://dudidolls.vercel.app/foto/hero.jpg",
+              contactPoint: {
+                "@type": "ContactPoint",
+                email: "atelier@dudidolls.it",
+                contactType: "customer service",
+                areaServed: "IT",
+                availableLanguage: ["Italian", "English", "German"],
+              },
+            }),
+          }}
+        />
       </body>
     </html>
   );

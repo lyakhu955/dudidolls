@@ -1,8 +1,8 @@
 import Reveal from "@/components/motion/Reveal";
 import DollCard from "@/components/product/DollCard";
-import { DOLLS } from "@/lib/data";
+import type { Doll } from "@/lib/data";
 
-export default function Gallery() {
+export default function Gallery({ dolls }: { dolls: Doll[] }) {
   return (
     <section className="gallery" id="gallery">
       <Reveal as="div" className="section-head">
@@ -17,7 +17,7 @@ export default function Gallery() {
         </div>
       </Reveal>
       <div className="gallery-grid">
-        {DOLLS.map((d) => (
+        {dolls.map((d) => (
           <DollCard key={d.id} doll={d} />
         ))}
       </div>

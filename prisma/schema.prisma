@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Doll {
+  id         String   @id
+  name       String
+  italic     String
+  price      Int
+  sold       Boolean  @default(false)
+  edition    String
+  origin     String
+  materials  String
+  height     String
+  year       String
+  desc       String
+  tag        String
+  images     String[]
+  weight     Int?
+  dimensions String?
+  sku        String?  @unique
+  category   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  stripeId      String      @unique
+  customerEmail String
+  totalAmount   Int
+  status        String      @default("pending")
+  createdAt     DateTime    @default(now())
+  items         OrderItem[]
+}
+
+model OrderItem {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+  dollId  String
+  price   Int
+}
