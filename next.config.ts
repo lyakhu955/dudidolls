@@ -6,6 +6,13 @@ const config: NextConfig = {
   distDir: heroMode ? `.next-${heroMode}` : ".next",
   images: {
     formats: ["image/avif", "image/webp"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.sanity.io",
+        pathname: "/images/**",
+      },
+    ],
   },
   experimental: {
     optimizePackageImports: ["gsap", "lenis"],
