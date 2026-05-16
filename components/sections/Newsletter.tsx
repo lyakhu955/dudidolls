@@ -8,7 +8,10 @@ export default function Newsletter() {
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    if (email.includes("@")) setDone(true);
+    if (done) return;
+    const trimmed = email.trim();
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+    if (valid) setDone(true);
   };
 
   return (
@@ -30,7 +33,7 @@ export default function Newsletter() {
           />
           <button type="submit">{done ? "↻" : "Iscriviti →"}</button>
         </form>
-        <div className="micro">Quattro lettere all'anno · annulla l'iscrizione quando vuoi</div>
+        <div className="micro">Quattro lettere all&apos;anno · annulla l&apos;iscrizione quando vuoi</div>
       </Reveal>
     </section>
   );

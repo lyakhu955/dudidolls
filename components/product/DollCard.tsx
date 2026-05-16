@@ -28,6 +28,7 @@ export default function DollCard({ doll }: { doll: Doll }) {
       <div
         role="button"
         tabIndex={0}
+        aria-label={`Apri dettagli: ${doll.name}, ${doll.italic}`}
         onClick={() => setModal(doll)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setModal(doll); }}
         style={{ textDecoration: "none", color: "inherit", display: "block", cursor: "pointer" }}

@@ -36,11 +36,14 @@ export const metadata: Metadata = {
   title: "dudidolls — bambole d'autore, cucite a mano",
   description:
     "Bambole d'autore cucite una alla volta tra le valli del Sudtirolo. Ogni pezzo è unico, firmato, e ha già un nome.",
-  metadataBase: new URL("https://dudidolls-main.vercel.app"),
+  metadataBase: new URL("https://dudidolls.vercel.app"),
   openGraph: {
     title: "dudidolls",
     description: "Bambole d'autore cucite a mano",
     images: ["/foto/hero.jpg"],
+    url: "https://dudidolls.vercel.app",
+    type: "website",
+    locale: "it_IT",
   },
 };
 

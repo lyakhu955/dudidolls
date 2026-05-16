@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { WaxSeal } from "@/components/atelier/Tools";
 
 export default function Footer() {
@@ -7,22 +8,22 @@ export default function Footer() {
         <div className="brand-large">
           dudi<span style={{ color: "var(--accent)" }}>.</span>
         </div>
-        <p>Bambole d'autore. Lana, Sudtirolo. P.IVA 02938471055.</p>
+        <p>Bambole d&apos;autore. Lana, Sudtirolo. P.IVA 02938471055.</p>
       </div>
       <div>
         <h5>Negozio</h5>
         <ul>
-          <li><a href="#">Collezione</a></li>
-          <li><a href="#">Pezzi unici</a></li>
-          <li><a href="#">Riparazioni</a></li>
+          <li><Link href="/#gallery">Collezione</Link></li>
+          <li><Link href="/#gallery">Pezzi unici</Link></li>
+          <li><Link href="/accedi">Riparazioni</Link></li>
         </ul>
       </div>
       <div>
         <h5>Studio</h5>
         <ul>
-          <li><a href="#">Atelier</a></li>
-          <li><a href="#">Stampa</a></li>
-          <li><a href="#">Contatti</a></li>
+          <li><Link href="/#craft">Atelier</Link></li>
+          <li><Link href="/diario">Stampa</Link></li>
+          <li><Link href="/accedi">Contatti</Link></li>
         </ul>
       </div>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 18 }}>
@@ -34,7 +35,7 @@ export default function Footer() {
       </div>
       <div className="footer-bottom">
         <div>© 2026 dudidolls · Cucito a mano fra le mele</div>
-        <div>IT · EN · DE</div>
+        <div><a href="#">IT</a> · <a href="#">EN</a> · <a href="#">DE</a></div>
       </div>
     </footer>
   );

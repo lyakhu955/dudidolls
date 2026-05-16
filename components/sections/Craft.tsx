@@ -32,7 +32,7 @@ export default function Craft() {
             <h3>
               Si <span className="it">disegna</span> il volto
             </h3>
-            <p>Un occhio leggermente più basso dell'altro, una piega d'espressione vicino alla bocca. Mai due volti uguali. È qui che nasce il nome.</p>
+            <p>Un occhio leggermente più basso dell&apos;altro, una piega d&apos;espressione vicino alla bocca. Mai due volti uguali. È qui che nasce il nome.</p>
           </Reveal>
           <Reveal className="craft-block" delay={160}>
             <div className="step">— Atto III</div>

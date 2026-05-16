@@ -15,9 +15,10 @@ export default function ProductModal() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setModal(null);
     };
+    if (!open) return;
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [setModal]);
+  }, [open, setModal]);
 
   useEffect(() => {
     if (open) setActive(0);
@@ -37,7 +38,7 @@ export default function ProductModal() {
   return (
     <>
       <div className={`modal-backdrop ${open ? "open" : ""}`} onClick={() => setModal(null)} />
-      <div className={`modal ${open ? "open" : ""}`}>
+      <div className={`modal ${open ? "open" : ""}`} role="dialog" aria-modal="true" aria-label="Dettaglio bambola">
         <button className="modal-close" onClick={() => setModal(null)}>
           ✕
         </button>

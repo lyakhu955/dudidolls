@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useStore, useCartCount } from "@/lib/store";
 
 export default function Nav() {
@@ -16,14 +17,14 @@ export default function Nav() {
             <rect y="12" width="20" height="2" rx="1" fill="currentColor" />
           </svg>
         </button>
-        <a className="nav-link" href="/#gallery">Collezione</a>
-        <a className="nav-link" href="/#craft">Atelier</a>
-        <a className="nav-link" href="#">Diario</a>
+        <Link className="nav-link" href="/#gallery">Collezione</Link>
+        <Link className="nav-link" href="/#craft">Atelier</Link>
+        <Link className="nav-link" href="/diario">Diario</Link>
       </div>
-      <a className="nav-brand" href="/">dudidolls</a>
+      <Link className="nav-brand" href="/">dudidolls</Link>
       <div className="nav-right">
-        <a className="nav-link" href="#">Cerca</a>
-        <a className="nav-link" href="#">Accedi</a>
+        <Link className="nav-link" href="/#gallery">Cerca</Link>
+        <Link className="nav-link" href="/accedi">Accedi</Link>
         <button className="cart-pill" onClick={() => setDrawer(true)}>
           <span className="cart-dot" />
           Carrello ({cartCount})

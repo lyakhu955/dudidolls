@@ -57,7 +57,7 @@ export default function HeroIntroCurtain({ children }: { children: ReactNode }) 
 
           // Phase 1 (0 → 0.15) — logo pulses, curtains closed
           if (p < 0.15) {
-            const k = p / 0.15;
+
             gsap.set(logoRef.current, { autoAlpha: 1, scale: 1 + Math.sin(p * 18) * 0.01 });
             gsap.set(leftCurtainRef.current, { x: "0%" });
             gsap.set(rightCurtainRef.current, { x: "0%" });

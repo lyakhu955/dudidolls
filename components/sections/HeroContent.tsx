@@ -11,7 +11,7 @@ export default function HeroContent() {
       <ThreadSeparator />
       <div className="hero-bottom-row">
         <p className="hero-tagline">
-          Bambole d'autore cucite una alla volta,
+          Bambole d&apos;autore cucite una alla volta,
           <br />
           tra le valli del Sudtirolo. Ogni pezzo è{" "}
           <span className="it" style={{ color: "var(--accent)" }}>unico</span>, firmato, e ha già un nome.

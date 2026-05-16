@@ -290,7 +290,7 @@ export default function HeroIntroEye({ children }: { children: ReactNode }) {
           </h2>
         </div>
         <div ref={cueRef} className="intro-eye-cue">
-          <span>SCORRI · APRI L'OCCHIO</span>
+          <span>SCORRI · APRI L&apos;OCCHIO</span>
           <span className="intro-eye-cue-line" />
         </div>
       </div>

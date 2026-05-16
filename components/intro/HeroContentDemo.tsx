@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 export default function HeroContentDemo({ concept }: { concept: "eye" | "atelier" | "curtain" }) {
   const accentLabel = {
     eye: "occhi che cambiano",
@@ -13,7 +15,7 @@ export default function HeroContentDemo({ concept }: { concept: "eye" | "atelier
         <span className="intro-demo-dot" /> {accentLabel}
       </p>
       <h1 className="intro-demo-title">
-        bambole <span className="it">d'autore</span>,<br />
+        bambole <span className="it">d&apos;autore</span>,<br />
         cucite una alla volta.
       </h1>
       <p className="intro-demo-tagline">
@@ -21,9 +23,9 @@ export default function HeroContentDemo({ concept }: { concept: "eye" | "atelier
         vestiti su misura, un nome scelto a mano.
       </p>
       <div className="intro-demo-cta">
-        <a href="/" className="intro-demo-btn">
+        <Link href="/" className="intro-demo-btn">
           torna alla home <span>↩</span>
-        </a>
+        </Link>
         <span className="intro-demo-meta">
           concept demo · <code>/intro/{concept}</code>
         </span>

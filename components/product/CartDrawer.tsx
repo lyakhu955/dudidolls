@@ -44,7 +44,7 @@ export default function CartDrawer() {
                     {it.edition} · {it.height}
                   </div>
                   <div className="qty mono" style={{ marginTop: 8, fontSize: 11, color: "var(--muted)" }}>
-                    Qty: 1
+                    Qty: {it.qty}
                   </div>
                 </div>
                 <div style={{ textAlign: "right" }}>
