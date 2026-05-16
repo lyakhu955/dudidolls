@@ -6,6 +6,16 @@ export const doll = defineType({
   type: "document",
   fields: [
     defineField({
+      name: "id",
+      title: "ID (slug per URL)",
+      type: "string",
+      validation: (Rule) =>
+        Rule.required()
+          .regex(/^[a-z0-9-]+$/)
+          .error("Solo lettere minuscole, numeri e trattini. Es: nuova-bambola"),
+      description: "URL: /product/ID — es. anouk, miele, nuova-bambola",
+    }),
+    defineField({
       name: "name",
       title: "Nome",
       type: "string",

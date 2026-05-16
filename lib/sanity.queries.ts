@@ -12,7 +12,7 @@ function mapSanityDoll(raw: Record<string, unknown>): Doll {
     : [];
 
   return {
-    id: String(raw.id ?? raw._id ?? ""),
+    id: String((raw.id as string | undefined) || (typeof raw._id === "string" ? raw._id.replace("doll-", "") : "")),
     name: String(raw.name ?? ""),
     italic: String(raw.italic ?? ""),
     price: Number(raw.price ?? 0),
