@@ -9,19 +9,47 @@ export default function ProductModal() {
   const addToCart = useStore((s) => s.addToCart);
   const open = !!doll;
   const [active, setActive] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setModal(null);
+      if (lightboxOpen) {
+        if (e.key === "Escape") {
+          setLightboxOpen(false);
+          return;
+        }
+        if (e.key === "ArrowLeft") {
+          setLightboxIndex((i) => (i > 0 ? i - 1 : (doll?.images.length ?? 1) - 1));
+          return;
+        }
+        if (e.key === "ArrowRight") {
+          setLightboxIndex((i) => (i < (doll?.images.length ?? 1) - 1 ? i + 1 : 0));
+          return;
+        }
+      } else {
+        if (e.key === "Escape") setModal(null);
+      }
     };
     if (!open) return;
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, setModal]);
+  }, [open, setModal, lightboxOpen, doll]);
 
   useEffect(() => {
     if (open) setActive(0);
   }, [open]);
+
+  useEffect(() => {
+    if (lightboxOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [lightboxOpen]);
 
   if (!doll) {
     return (
@@ -34,6 +62,21 @@ export default function ProductModal() {
 
   const images = doll.images;
 
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const closeLightbox = () => setLightboxOpen(false);
+
+  const prevImage = () => {
+    setLightboxIndex((i) => (i > 0 ? i - 1 : images.length - 1));
+  };
+
+  const nextImage = () => {
+    setLightboxIndex((i) => (i < images.length - 1 ? i + 1 : 0));
+  };
+
   return (
     <>
       <div className={`modal-backdrop ${open ? "open" : ""}`} onClick={() => setModal(null)} />
@@ -42,7 +85,10 @@ export default function ProductModal() {
           ✕
         </button>
         <div className="modal-img" style={{ display: "flex", flexDirection: "column", backgroundColor: "var(--ink)" }}>
-          <div style={{ position: "relative", flex: 1, minHeight: 0 }}>
+          <div
+            style={{ position: "relative", flex: 1, minHeight: 0, cursor: images.length > 0 ? "zoom-in" : "default" }}
+            onClick={() => images.length > 0 && openLightbox(active)}
+          >
             <Image
               src={images[active]}
               alt={`${doll.name} · foto ${active + 1}`}
@@ -96,6 +142,38 @@ export default function ProductModal() {
               <span className="arrow" style={{ marginLeft: 14 }}>→</span>
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Lightbox */}
+      <div
+        className={`lightbox-overlay ${lightboxOpen ? "open" : ""}`}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) closeLightbox();
+        }}
+      >
+        <button className="lightbox-close" onClick={closeLightbox} aria-label="Chiudi lightbox">
+          ✕
+        </button>
+        {images.length > 1 && (
+          <>
+            <button className="lightbox-arrow left" onClick={prevImage} aria-label="Foto precedente">
+              ‹
+            </button>
+            <button className="lightbox-arrow right" onClick={nextImage} aria-label="Foto successiva">
+              ›
+            </button>
+          </>
+        )}
+        <div className="lightbox-img-wrap">
+          <Image
+            src={images[lightboxIndex] ?? images[0]}
+            alt={`${doll.name} · foto ${lightboxIndex + 1}`}
+            fill
+            sizes="90vw"
+            style={{ objectFit: "contain" }}
+            priority
+          />
         </div>
       </div>
     </>
