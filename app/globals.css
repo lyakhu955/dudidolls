@@ -759,24 +759,24 @@ section { position: relative; }
 .modal-backdrop.open { opacity: 1; pointer-events: auto; }
 .modal {
   position: fixed; inset: 50% auto auto 50%; transform: translate(-50%, -48%) scale(.98);
-  width: min(1100px, calc(100vw - 32px)); max-height: calc(100vh - 32px);
+  width: min(1200px, 95vw); height: min(850px, 95vh); max-height: 95vh;
   background: var(--bg); z-index: 111;
   border-radius: 6px; overflow: hidden;
   opacity: 0; pointer-events: none; transition: opacity .4s, transform .5s cubic-bezier(.22,.61,.36,1);
   display: grid; grid-template-columns: 5fr 4fr;
 }
 .modal.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
-.modal-img { aspect-ratio: auto; min-height: 600px; position: relative; }
-.modal-info { padding: 48px 40px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+.modal-img { aspect-ratio: auto; min-height: 0; height: 100%; position: relative; background: var(--ink); }
+.modal-info { padding: 32px 28px; display: flex; flex-direction: column; gap: 10px; overflow-y: hidden; }
 .modal-info .eyebrow { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
-.modal-info h2 { font-family: var(--serif); font-size: 64px; line-height: 0.95; letter-spacing: -0.025em; }
+.modal-info h2 { font-family: var(--serif); font-size: clamp(32px, 3.5vw, 52px); line-height: 1; letter-spacing: -0.025em; }
 .modal-info h2 .it { font-style: italic; color: var(--accent); }
-.modal-info .desc { font-size: 15px; color: var(--ink-2); line-height: 1.65; }
-.modal-spec { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px; padding: 20px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.modal-info .desc { font-size: 15px; color: var(--ink-2); line-height: 1.65; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.modal-spec { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .modal-spec dt { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .modal-spec dd { font-size: 14px; margin-top: 2px; }
 .modal-price-row { display: flex; justify-content: space-between; align-items: baseline; margin-top: auto; padding-top: 16px; }
-.modal-price-row .price { font-family: var(--serif); font-size: 48px; letter-spacing: -0.02em; }
+.modal-price-row .price { font-family: var(--serif); font-size: 36px; letter-spacing: -0.02em; }
 .modal-close {
   position: absolute; top: 20px; right: 20px; z-index: 2;
   width: 36px; height: 36px; border-radius: 50%; background: var(--bg);
@@ -1067,8 +1067,9 @@ section { position: relative; }
 
   .modal { width: calc(100vw - 24px); max-height: calc(100vh - 24px); grid-template-columns: 1fr; }
   .modal-img { min-height: 260px; }
-  .modal-info { padding: 32px 24px; }
+  .modal-info { padding: 32px 24px; overflow-y: auto; }
   .modal-info h2 { font-size: 44px; }
+  .modal-info .desc { -webkit-line-clamp: 4; }
   .modal-price-row .price { font-size: 36px; }
 
   .drawer { width: min(400px, 100vw); }

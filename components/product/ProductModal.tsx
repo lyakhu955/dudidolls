@@ -1,6 +1,5 @@
 "use client";
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useStore } from "@/lib/store";
 
@@ -42,14 +41,14 @@ export default function ProductModal() {
         <button className="modal-close" onClick={() => setModal(null)}>
           ✕
         </button>
-        <div className="modal-img" style={{ display: "flex", flexDirection: "column" }}>
+        <div className="modal-img" style={{ display: "flex", flexDirection: "column", backgroundColor: "var(--ink)" }}>
           <div style={{ position: "relative", flex: 1, minHeight: 0 }}>
             <Image
               src={images[active]}
               alt={`${doll.name} · foto ${active + 1}`}
               fill
               sizes="(max-width: 768px) 100vw, 60vw"
-              style={{ objectFit: "cover" }}
+              style={{ objectFit: "contain" }}
             />
           </div>
           {images.length > 1 && (
@@ -97,12 +96,6 @@ export default function ProductModal() {
               <span className="arrow" style={{ marginLeft: 14 }}>→</span>
             </button>
           </div>
-          <Link
-            href={`/product/${doll.id}`}
-            style={{ display: "inline-block", marginTop: 14, fontSize: 14, color: "var(--accent)", cursor: "pointer", textDecoration: "underline" }}
-          >
-            Vedi pagina dedicata →
-          </Link>
         </div>
       </div>
     </>
