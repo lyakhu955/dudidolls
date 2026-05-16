@@ -41,7 +41,7 @@ export default function ProductModal() {
   }, [open]);
 
   useEffect(() => {
-    if (lightboxOpen) {
+    if (open || lightboxOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -49,7 +49,7 @@ export default function ProductModal() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [lightboxOpen]);
+  }, [open, lightboxOpen]);
 
   if (!doll) {
     return (

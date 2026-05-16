@@ -767,11 +767,11 @@ section { position: relative; }
 }
 .modal.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
 .modal-img { aspect-ratio: auto; min-height: 0; height: 100%; position: relative; background: var(--ink); }
-.modal-info { padding: 32px 28px; display: flex; flex-direction: column; gap: 10px; overflow-y: hidden; }
+.modal-info { padding: 32px 28px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
 .modal-info .eyebrow { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
 .modal-info h2 { font-family: var(--serif); font-size: clamp(32px, 3.5vw, 52px); line-height: 1; letter-spacing: -0.025em; }
 .modal-info h2 .it { font-style: italic; color: var(--accent); }
-.modal-info .desc { font-size: 15px; color: var(--ink-2); line-height: 1.65; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.modal-info .desc { font-size: 15px; color: var(--ink-2); line-height: 1.65; }
 .modal-spec { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .modal-spec dt { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
 .modal-spec dd { font-size: 14px; margin-top: 2px; }
@@ -1078,7 +1078,7 @@ section { position: relative; }
   .modal-img { min-height: 260px; }
   .modal-info { padding: 32px 24px; overflow-y: auto; }
   .modal-info h2 { font-size: 44px; }
-  .modal-info .desc { -webkit-line-clamp: 4; }
+
   .modal-price-row .price { font-size: 36px; }
 
   .drawer { width: min(400px, 100vw); }
@@ -1140,11 +1140,11 @@ section { position: relative; }
   .footer { grid-template-columns: 1fr; padding: 40px 16px 24px; gap: 32px; }
   .footer-bottom { margin-top: 24px; padding-top: 24px; }
 
-  .modal { inset: 0; width: 100vw; max-height: 100vh; transform: translate(0, 0) scale(1); border-radius: 0; }
+  .modal { inset: 0; width: 100vw; max-height: 100dvh; transform: translate(0, 0) scale(1); border-radius: 0; }
   .modal.open { transform: translate(0, 0) scale(1); }
   .modal-img { min-height: 220px; aspect-ratio: 3/2; }
-  .modal-info { padding: 24px 16px; gap: 12px; }
-  .modal-info h2 { font-size: 36px; }
+  .modal-info { padding: 20px 16px; gap: 8px; }
+  .modal-info h2 { font-size: 28px; }
   .modal-info .desc { font-size: 14px; }
   .modal-spec { grid-template-columns: 1fr; gap: 10px 0; }
   .modal-price-row { flex-direction: column; align-items: flex-start; gap: 12px; }
