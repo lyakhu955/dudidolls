@@ -19,3 +19,4 @@ next-env.d.ts
 open-design/
 screenshots/
 .sanity/
+ruvector.db

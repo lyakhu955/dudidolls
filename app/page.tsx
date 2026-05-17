@@ -1,6 +1,6 @@
 import Nav from "@/components/nav/Nav";
 import MobileMenu from "@/components/nav/MobileMenu";
-import HeroIntro from "@/components/intro/HeroIntro";
+import HeroIntroWorkshop from "@/components/intro/HeroIntroWorkshop";
 import HeroContent from "@/components/sections/HeroContent";
 import Marquee from "@/components/sections/Marquee";
 import Studio from "@/components/sections/Studio";
@@ -26,9 +26,9 @@ export default async function Home() {
       <ScrollProgress />
       <Nav />
       <MobileMenu />
-      <HeroIntro>
+      <HeroIntroWorkshop>
         <HeroContent />
-      </HeroIntro>
+      </HeroIntroWorkshop>
 
       <Marquee />
       <Selvedge />

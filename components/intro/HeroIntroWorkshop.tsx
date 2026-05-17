@@ -1,0 +1,356 @@
+"use client";
+import { useLayoutEffect, useRef, useEffect, useState, type ReactNode } from "react";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+
+const TOTAL_FRAMES = 45;
+const FRAME_PATH = (i: number) =>
+  `/frames/workshop/frame_${String(i).padStart(3, "0")}.jpg`;
+
+export default function HeroIntroWorkshop({ children }: { children: ReactNode }) {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const logoRef = useRef<HTMLDivElement | null>(null);
+  const cueRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+
+  const framesRef = useRef<HTMLImageElement[]>([]);
+  const [ready, setReady] = useState(false);
+  const [preloadCount, setPreloadCount] = useState(0);
+
+  // Preload all frames
+  useEffect(() => {
+    const images: HTMLImageElement[] = [];
+    let done = 0;
+
+    for (let i = 1; i <= TOTAL_FRAMES; i++) {
+      const img = new Image();
+      img.src = FRAME_PATH(i);
+      img.onload = () => {
+        done++;
+        setPreloadCount(done);
+        if (done === TOTAL_FRAMES) {
+          framesRef.current = images;
+          setReady(true);
+        }
+      };
+      img.onerror = () => {
+        done++;
+        setPreloadCount(done);
+        if (done === TOTAL_FRAMES) {
+          framesRef.current = images;
+          setReady(true);
+        }
+      };
+      images.push(img);
+    }
+
+    return () => {
+      images.forEach((img) => {
+        img.onload = null;
+        img.onerror = null;
+      });
+    };
+  }, []);
+
+  // Draw the correct frame based on scroll progress
+  useLayoutEffect(() => {
+    if (!ready) return;
+    if (typeof window === "undefined") return;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      if (stageRef.current) stageRef.current.style.display = "none";
+      gsap.set(contentRef.current, { autoAlpha: 1 });
+      return;
+    }
+
+    gsap.set(contentRef.current, { autoAlpha: 0 });
+
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+
+    // Set canvas internal resolution to match frames
+    canvas.width = 960;
+    canvas.height = 540;
+
+    const drawFrame = (progress: number) => {
+      const idx = Math.min(
+        TOTAL_FRAMES - 1,
+        Math.max(0, Math.floor(progress * TOTAL_FRAMES))
+      );
+      const img = framesRef.current[idx];
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      }
+    };
+
+    const ctxGSAP = gsap.context(() => {
+      const st = ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top top",
+        end: "+=380vh",
+        scrub: 1.2,
+        pin: true,
+        pinSpacing: true,
+        onUpdate: (self) => {
+          const p = self.progress;
+
+          // Draw the matching frame
+          drawFrame(p);
+
+          // Phase 1 (0 → 0.10): scroll cue fades, logo visible at top
+          if (p < 0.10) {
+            const k = p / 0.10;
+            gsap.set(cueRef.current, { autoAlpha: 1 - k });
+            gsap.set(logoRef.current, {
+              autoAlpha: 1,
+              scale: 1,
+              y: 0,
+            });
+          }
+          // Phase 2 (0.10 → 0.70): camera enters workshop, logo stays anchored at top
+          else if (p < 0.70) {
+            gsap.set(cueRef.current, { autoAlpha: 0 });
+            gsap.set(logoRef.current, {
+              autoAlpha: 1,
+              scale: 1,
+              y: 0,
+            });
+          }
+          // Phase 3 (0.70 → 0.88): "dudidolls" expands to fill screen
+          else if (p < 0.88) {
+            const expandP = (p - 0.70) / 0.18;
+            const ease = expandP * expandP; // ease-in quadratic
+            const scale = 1 + ease * 19; // 1 → 20x
+            gsap.set(logoRef.current, {
+              autoAlpha: 1,
+              scale,
+            });
+            gsap.set(contentRef.current, { autoAlpha: 0 });
+          }
+          // Phase 4 (0.88 → 1.0): logo fades, stage dissolves, content breathes in
+          else {
+            const rP = (p - 0.88) / 0.12;
+            const stageE = rP;
+            const contentE = rP * (2 - rP);
+            gsap.set(logoRef.current, {
+              autoAlpha: 1 - stageE,
+              scale: 20,
+            });
+            gsap.set(stageRef.current, {
+              autoAlpha: 1 - stageE,
+            });
+            gsap.set(contentRef.current, {
+              autoAlpha: contentE,
+              y: `${(1 - contentE) * 40}px`,
+            });
+          }
+        },
+      });
+
+      return () => st.kill();
+    }, sectionRef);
+
+    return () => ctxGSAP.revert();
+  }, [ready]);
+
+  return (
+    <section
+      ref={sectionRef}
+      className="hero-intro"
+      style={{ height: "100vh", position: "relative", zIndex: 20 }}
+    >
+      {/* Real site content behind the overlay */}
+      <div
+        ref={contentRef}
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 1,
+          overflow: "hidden",
+        }}
+      >
+        {children}
+      </div>
+
+      {/* Workshop overlay stage — solid background so nothing bleeds through */}
+      <div
+        ref={stageRef}
+        style={{
+          position: "absolute",
+          inset: 0,
+          overflow: "hidden",
+          zIndex: 10,
+          background: "#1a1209",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {/* Canvas draws the frame sequence */}
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+
+        {/* Gradient overlays for readability */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(180deg, rgba(10,8,6,0.55) 0%, rgba(10,8,6,0.15) 35%, rgba(10,8,6,0.10) 65%, rgba(10,8,6,0.45) 100%)",
+            pointerEvents: "none",
+            zIndex: 2,
+          }}
+        />
+
+        {/* Preloader */}
+        {!ready && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 16,
+              zIndex: 20,
+              background: "#1a1209",
+              fontFamily: "var(--mono)",
+              fontSize: 11,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              color: "rgba(244,237,225,0.6)",
+            }}
+          >
+            <span>Caricamento scene</span>
+            <div
+              style={{
+                width: 120,
+                height: 2,
+                background: "rgba(244,237,225,0.15)",
+                borderRadius: 1,
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  width: `${(preloadCount / TOTAL_FRAMES) * 100}%`,
+                  height: "100%",
+                  background: "var(--accent)",
+                  transition: "width 0.2s ease",
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Logo / Brand — positioned at top, scales up dramatically */}
+        <div
+          style={{
+            position: "absolute",
+            top: "10vh",
+            left: 0,
+            right: 0,
+            display: "flex",
+            justifyContent: "center",
+            zIndex: 5,
+            pointerEvents: "none",
+          }}
+        >
+          <div
+            ref={logoRef}
+            style={{
+              fontFamily: "var(--serif)",
+              fontSize: "clamp(32px, 5vw, 80px)",
+              lineHeight: 0.9,
+              letterSpacing: "-0.03em",
+              color: "#f4ede1",
+              textShadow:
+                "0 4px 30px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.4)",
+              willChange: "transform, opacity",
+              whiteSpace: "nowrap",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transformOrigin: "center center",
+            }}
+          >
+            <span style={{ fontWeight: 400 }}>dudi</span>
+            <span
+              style={{
+                fontStyle: "italic",
+                color: "var(--accent)",
+                marginLeft: "-0.04em",
+              }}
+            >
+              dolls
+            </span>
+          </div>
+        </div>
+
+        {/* Optional subtitle under logo */}
+        <div
+          style={{
+            position: "absolute",
+            top: "calc(10vh + clamp(48px, 7vw, 110px))",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 5,
+            fontFamily: "var(--sans)",
+            fontSize: "clamp(10px, 1.1vw, 14px)",
+            letterSpacing: "0.25em",
+            textTransform: "uppercase",
+            color: "rgba(244,237,225,0.7)",
+            pointerEvents: "none",
+          }}
+        >
+          Workshop di bambole d&rsquo;autore
+        </div>
+
+        {/* Scroll cue */}
+        <div
+          ref={cueRef}
+          style={{
+            position: "absolute",
+            bottom: "6vh",
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "12px",
+            fontFamily: "var(--mono)",
+            fontSize: "11px",
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "#f4ede1",
+            pointerEvents: "none",
+            zIndex: 5,
+          }}
+        >
+          <span>SCORRI</span>
+          <span
+            style={{
+              width: "1px",
+              height: "32px",
+              background: "linear-gradient(to bottom, transparent, #f4ede1)",
+              position: "relative",
+              animation: "bounce-down 1.6s ease-in-out infinite",
+            }}
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
