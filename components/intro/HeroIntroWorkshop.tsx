@@ -4,7 +4,7 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useStore } from "@/lib/store";
 
 const TOTAL_FRAMES = 304;
-const CRITICAL_FRAMES = 32; // mark ready after these load — rest streams in background
+const CRITICAL_FRAMES = 40; // unlock UX after these; rest loads in background
 const FRAME_PATH = (i: number) =>
   `/frames/workshop/frame_${String(i).padStart(3, "0")}.webp`;
 
@@ -23,7 +23,7 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
   const [preloadCount, setPreloadCount] = useState(0);
   const setIntroFinished = useStore((s) => s.setIntroFinished);
 
-  // Progressive frame preload — critical batch unblocks UX, rest streams.
+  // Progressive preload — unlock UX after critical batch, stream rest.
   useEffect(() => {
     const images: HTMLImageElement[] = new Array(TOTAL_FRAMES);
     framesRef.current = images;
@@ -55,10 +55,8 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
       img.src = FRAME_PATH(i);
     };
 
-    // Critical batch first
     for (let i = 1; i <= CRITICAL_FRAMES; i++) loadOne(i, "high");
 
-    // Remainder scheduled after first paint
     const scheduleRest = () => {
       for (let i = CRITICAL_FRAMES + 1; i <= TOTAL_FRAMES; i++) {
         loadOne(i, "low");
@@ -95,113 +93,37 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
     gsap.set(contentRef.current, { autoAlpha: 0 });
 
     const canvas = canvasRef.current;
-    const ctx = canvas?.getContext("2d", { alpha: false });
+    const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
-    // Adaptive canvas resolution — full HD on desktop, viewport-sized on mobile.
-    // Frames are 1920x1080; downscaling on draw is essentially free for the GPU,
-    // and dropping internal canvas size massively cuts per-tick composite cost.
-    const sizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const vw = window.innerWidth;
-      const vh = window.innerHeight;
-      const targetW = Math.min(1920, Math.ceil(vw * dpr));
-      const targetH = Math.min(1080, Math.ceil(vh * dpr));
-      // Maintain 16:9 to match source frames
-      const ratio = 16 / 9;
-      let w = targetW;
-      let h = Math.round(w / ratio);
-      if (h < targetH) {
-        h = targetH;
-        w = Math.round(h * ratio);
-      }
-      canvas.width = w;
-      canvas.height = h;
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-    };
-    sizeCanvas();
-    let resizeTimer: ReturnType<typeof setTimeout> | null = null;
-    const onResize = () => {
-      if (resizeTimer) clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        sizeCanvas();
-        lastIdx = -1; // force redraw at new size
-      }, 120);
-    };
-    window.addEventListener("resize", onResize, { passive: true });
+    // Set canvas internal resolution to match frames (HD)
+    canvas.width = 1920;
+    canvas.height = 1080;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
 
-    let lastIdx = -1;
     const drawFrame = (progress: number) => {
       const idx = Math.min(
         TOTAL_FRAMES - 1,
         Math.max(0, Math.floor(progress * TOTAL_FRAMES))
       );
-      if (idx === lastIdx) return; // skip identical redraws
-      // Find nearest loaded frame (handles in-progress streaming preload)
-      let useIdx = idx;
-      let img = framesRef.current[useIdx];
+      let img = framesRef.current[idx];
+      // Fallback: if requested frame still streaming, draw nearest earlier loaded frame
       if (!(img && img.complete && img.naturalWidth > 0)) {
-        for (let off = 1; off <= 8; off++) {
-          const back = framesRef.current[useIdx - off];
+        for (let off = 1; off <= 12; off++) {
+          const back = framesRef.current[idx - off];
           if (back && back.complete && back.naturalWidth > 0) {
             img = back;
-            useIdx = idx - off;
             break;
           }
         }
       }
       if (img && img.complete && img.naturalWidth > 0) {
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        lastIdx = idx;
       }
     };
 
     const ctxGSAP = gsap.context(() => {
-      // quickSetters — bypass gsap.set's per-call property/string parsing.
-      const qCueAlpha = gsap.quickSetter(cueRef.current, "autoAlpha");
-      const qLogoAlpha = gsap.quickSetter(logoRef.current, "autoAlpha");
-      const qLogoY = gsap.quickSetter(logoRef.current, "y", "px");
-      const qLogoScale = gsap.quickSetter(logoInnerRef.current, "scale");
-      const qLogoLetter = gsap.quickSetter(
-        logoInnerRef.current,
-        "letterSpacing",
-        "em"
-      );
-      const qLogoFilter = gsap.quickSetter(
-        logoInnerRef.current,
-        "filter"
-      ) as (val: string) => void;
-      const qStageAlpha = gsap.quickSetter(stageRef.current, "autoAlpha");
-      const qStageScale = gsap.quickSetter(stageRef.current, "scale");
-      const qStageFilter = gsap.quickSetter(stageRef.current, "filter") as (
-        val: string
-      ) => void;
-      const qContentAlpha = gsap.quickSetter(contentRef.current, "autoAlpha");
-      const qContentY = gsap.quickSetter(contentRef.current, "y", "px");
-      const qContentScale = gsap.quickSetter(contentRef.current, "scale");
-
-      let lastPhase = -1;
-      const applyStatic = (phase: number) => {
-        if (phase === lastPhase) return;
-        lastPhase = phase;
-        if (phase === 1 || phase === 2) {
-          qLogoAlpha(1);
-          qLogoY(0);
-          qLogoScale(1);
-          qLogoLetter(-0.03);
-          qLogoFilter("blur(0px)");
-          qStageAlpha(1);
-          qStageScale(1);
-          qStageFilter("blur(0px)");
-          qContentAlpha(0);
-          qContentScale(0.96);
-          qContentY(0);
-          if (phase === 1) qCueAlpha(1);
-          else qCueAlpha(0);
-        }
-      };
-
       const st = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
@@ -211,58 +133,94 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
         pinSpacing: true,
         onUpdate: (self) => {
           const p = self.progress;
+
+          // Draw the matching frame
           drawFrame(p);
 
+          // Phase 1 (0 → 0.10): scroll cue fades, logo settled
           if (p < 0.10) {
-            // Phase 1
-            applyStatic(1);
-            qCueAlpha(1 - p / 0.10);
+            const k = p / 0.10;
+            gsap.set(cueRef.current, { autoAlpha: 1 - k });
+            gsap.set(logoRef.current, { autoAlpha: 1, y: 0 });
+            gsap.set(logoInnerRef.current, {
+              scale: 1,
+              letterSpacing: "-0.03em",
+              filter: "blur(0px)",
+            });
+            gsap.set(stageRef.current, {
+              autoAlpha: 1,
+              scale: 1,
+              filter: "blur(0px)",
+            });
             if (introTriggeredRef.current) {
               introTriggeredRef.current = false;
               setIntroFinished(false);
             }
-          } else if (p < 0.70) {
-            // Phase 2 — fully static
-            applyStatic(2);
+          }
+          // Phase 2 (0.10 → 0.70): camera enters workshop
+          else if (p < 0.70) {
+            gsap.set(cueRef.current, { autoAlpha: 0 });
+            gsap.set(logoRef.current, { autoAlpha: 1, y: 0 });
+            gsap.set(logoInnerRef.current, {
+              scale: 1,
+              letterSpacing: "-0.03em",
+              filter: "blur(0px)",
+            });
+            gsap.set(stageRef.current, {
+              autoAlpha: 1,
+              scale: 1,
+              filter: "blur(0px)",
+            });
             if (introTriggeredRef.current) {
               introTriggeredRef.current = false;
               setIntroFinished(false);
             }
-          } else if (p < 0.88) {
-            // Phase 3
-            lastPhase = 3;
+          }
+          // Phase 3 (0.70 → 0.88): logo letter-spacing expands, scale ramps
+          else if (p < 0.88) {
             const expandP = (p - 0.70) / 0.18;
             const ease = expandP * expandP;
-            qLogoAlpha(1);
-            qLogoY(-ease * 30);
-            qLogoScale(1 + ease * 0.35);
-            qLogoLetter(-0.03 + ease * 0.18);
-            qLogoFilter(`blur(${ease * 2}px)`);
-            qStageAlpha(1);
-            qStageScale(1 + ease * 0.06);
-            qStageFilter("blur(0px)");
-            qContentAlpha(0);
+            gsap.set(logoRef.current, { autoAlpha: 1, y: -ease * 30 });
+            gsap.set(logoInnerRef.current, {
+              scale: 1 + ease * 0.35,
+              letterSpacing: `${-0.03 + ease * 0.18}em`,
+              filter: `blur(${ease * 2}px)`,
+            });
+            gsap.set(stageRef.current, {
+              autoAlpha: 1,
+              scale: 1 + ease * 0.06,
+              filter: "blur(0px)",
+            });
+            gsap.set(contentRef.current, { autoAlpha: 0 });
             if (introTriggeredRef.current) {
               introTriggeredRef.current = false;
               setIntroFinished(false);
             }
-          } else {
-            // Phase 4
-            lastPhase = 4;
+          }
+          // Phase 4 (0.88 → 1.0): mask scale-up — logo explodes, stage dissolves into content
+          else {
             const rP = (p - 0.88) / 0.12;
             const eased = 1 - Math.pow(1 - rP, 3);
             const contentE = rP * (2 - rP);
-            qLogoAlpha(1 - eased);
-            qLogoY(-30 - eased * 50);
-            qLogoScale(1.35 + eased * 4.5);
-            qLogoLetter(0.15 + eased * 0.3);
-            qLogoFilter(`blur(${2 + eased * 14}px)`);
-            qStageAlpha(1 - eased);
-            qStageScale(1.06 + eased * 0.18);
-            qStageFilter(`blur(${eased * 8}px)`);
-            qContentAlpha(contentE);
-            qContentY((1 - contentE) * 40);
-            qContentScale(0.96 + contentE * 0.04);
+            gsap.set(logoRef.current, {
+              autoAlpha: 1 - eased,
+              y: -30 - eased * 50,
+            });
+            gsap.set(logoInnerRef.current, {
+              scale: 1.35 + eased * 4.5,
+              letterSpacing: `${0.15 + eased * 0.3}em`,
+              filter: `blur(${2 + eased * 14}px)`,
+            });
+            gsap.set(stageRef.current, {
+              autoAlpha: 1 - eased,
+              scale: 1.06 + eased * 0.18,
+              filter: `blur(${eased * 8}px)`,
+            });
+            gsap.set(contentRef.current, {
+              autoAlpha: contentE,
+              y: `${(1 - contentE) * 40}px`,
+              scale: 0.96 + contentE * 0.04,
+            });
             if (rP > 0.3 && !introTriggeredRef.current) {
               introTriggeredRef.current = true;
               setIntroFinished(true);
@@ -274,12 +232,8 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
       return () => st.kill();
     }, sectionRef);
 
-    return () => {
-      window.removeEventListener("resize", onResize);
-      if (resizeTimer) clearTimeout(resizeTimer);
-      ctxGSAP.revert();
-    };
-  }, [ready, setIntroFinished]);
+    return () => ctxGSAP.revert();
+  }, [ready]);
 
   return (
     <section
