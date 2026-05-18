@@ -526,6 +526,12 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   mix-blend-mode: difference; color: #f4ede1;
   font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
   pointer-events: none;
+  transition: opacity 0.6s ease, visibility 0.6s;
+}
+.nav.nav-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 .nav > * { pointer-events: auto; }
 .nav-left { display: flex; gap: 22px; align-items: center; }
@@ -876,6 +882,10 @@ section { position: relative; }
 /* ─── Mobile bottom bar ─── */
 /* ─── HERO INTRO ANIMATION ─── */
 .hero-intro { position: relative; }
+.hero-intro-logo { top: 10vh; }
+@media (max-width: 768px) {
+  .hero-intro-logo { top: 22vh !important; }
+}
 .hero-intro-stage {
   position: absolute; inset: 0;
   width: 100vw; height: 100vh;

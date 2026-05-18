@@ -19,6 +19,9 @@ type Store = {
   setModal: (doll: Doll | null) => void;
   showToast: (message: string) => void;
   hideToast: () => void;
+
+  introFinished: boolean;
+  setIntroFinished: (v: boolean) => void;
 };
 
 let toastTimer: ReturnType<typeof setTimeout> | null = null;
@@ -29,6 +32,8 @@ export const useStore = create<Store>((set, get) => ({
   menuOpen: false,
   modalDoll: null,
   toast: { show: false, message: "" },
+  introFinished: false,
+  setIntroFinished: (v) => set({ introFinished: v }),
 
   addToCart: (doll) => {
     const cart = get().cart;
@@ -50,6 +55,7 @@ export const useStore = create<Store>((set, get) => ({
   setDrawer: (open) => set({ drawerOpen: open }),
   setMenu: (open) => set({ menuOpen: open }),
   setModal: (doll) => set({ modalDoll: doll }),
+  setIntroFinished: (v) => set({ introFinished: v }),
 
   showToast: (message) => {
     if (toastTimer) clearTimeout(toastTimer);

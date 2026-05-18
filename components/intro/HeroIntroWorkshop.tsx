@@ -1,8 +1,9 @@
 "use client";
 import { useLayoutEffect, useRef, useEffect, useState, type ReactNode } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { useStore } from "@/lib/store";
 
-const TOTAL_FRAMES = 45;
+const TOTAL_FRAMES = 121;
 const FRAME_PATH = (i: number) =>
   `/frames/workshop/frame_${String(i).padStart(3, "0")}.jpg`;
 
@@ -15,8 +16,10 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
   const contentRef = useRef<HTMLDivElement | null>(null);
 
   const framesRef = useRef<HTMLImageElement[]>([]);
+  const introTriggeredRef = useRef(false);
   const [ready, setReady] = useState(false);
   const [preloadCount, setPreloadCount] = useState(0);
+  const setIntroFinished = useStore((s) => s.setIntroFinished);
 
   // Preload all frames
   useEffect(() => {
@@ -90,7 +93,7 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
       const st = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: "+=380vh",
+        end: "+=600vh",
         scrub: 1.2,
         pin: true,
         pinSpacing: true,
@@ -108,7 +111,13 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
               autoAlpha: 1,
               scale: 1,
               y: 0,
+              letterSpacing: "-0.03em",
+              filter: "blur(0px)",
             });
+            if (introTriggeredRef.current) {
+              introTriggeredRef.current = false;
+              setIntroFinished(false);
+            }
           }
           // Phase 2 (0.10 → 0.70): camera enters workshop, logo stays anchored at top
           else if (p < 0.70) {
@@ -117,27 +126,40 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
               autoAlpha: 1,
               scale: 1,
               y: 0,
+              letterSpacing: "-0.03em",
+              filter: "blur(0px)",
             });
+            if (introTriggeredRef.current) {
+              introTriggeredRef.current = false;
+              setIntroFinished(false);
+            }
           }
-          // Phase 3 (0.70 → 0.88): "dudidolls" expands to fill screen
+          // Phase 3 (0.70 → 0.88): logo expands letter-spacing, blurs and drifts up cinematically
           else if (p < 0.88) {
             const expandP = (p - 0.70) / 0.18;
             const ease = expandP * expandP; // ease-in quadratic
-            const scale = 1 + ease * 19; // 1 → 20x
             gsap.set(logoRef.current, {
-              autoAlpha: 1,
-              scale,
+              autoAlpha: 1 - expandP * 0.5,
+              y: -ease * 60,
+              letterSpacing: `${-0.03 + ease * 0.2}em`,
+              filter: `blur(${ease * 4}px)`,
             });
             gsap.set(contentRef.current, { autoAlpha: 0 });
+            if (introTriggeredRef.current) {
+              introTriggeredRef.current = false;
+              setIntroFinished(false);
+            }
           }
-          // Phase 4 (0.88 → 1.0): logo fades, stage dissolves, content breathes in
+          // Phase 4 (0.88 → 1.0): stage dissolves, content breathes in, nav appears
           else {
             const rP = (p - 0.88) / 0.12;
             const stageE = rP;
             const contentE = rP * (2 - rP);
             gsap.set(logoRef.current, {
               autoAlpha: 1 - stageE,
-              scale: 20,
+              y: -60 - stageE * 40,
+              letterSpacing: "0.2em",
+              filter: `blur(${4 + stageE * 4}px)`,
             });
             gsap.set(stageRef.current, {
               autoAlpha: 1 - stageE,
@@ -146,6 +168,10 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
               autoAlpha: contentE,
               y: `${(1 - contentE) * 40}px`,
             });
+            if (rP > 0.3 && !introTriggeredRef.current) {
+              introTriggeredRef.current = true;
+              setIntroFinished(true);
+            }
           }
         },
       });
@@ -257,6 +283,7 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
 
         {/* Logo / Brand — positioned at top, scales up dramatically */}
         <div
+          className="hero-intro-logo"
           style={{
             position: "absolute",
             top: "10vh",
@@ -272,7 +299,7 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
             ref={logoRef}
             style={{
               fontFamily: "var(--serif)",
-              fontSize: "clamp(32px, 5vw, 80px)",
+              fontSize: "clamp(64px, 10vw, 160px)",
               lineHeight: 0.9,
               letterSpacing: "-0.03em",
               color: "#f4ede1",
@@ -297,25 +324,6 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
               dolls
             </span>
           </div>
-        </div>
-
-        {/* Optional subtitle under logo */}
-        <div
-          style={{
-            position: "absolute",
-            top: "calc(10vh + clamp(48px, 7vw, 110px))",
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 5,
-            fontFamily: "var(--sans)",
-            fontSize: "clamp(10px, 1.1vw, 14px)",
-            letterSpacing: "0.25em",
-            textTransform: "uppercase",
-            color: "rgba(244,237,225,0.7)",
-            pointerEvents: "none",
-          }}
-        >
-          Workshop di bambole d&rsquo;autore
         </div>
 
         {/* Scroll cue */}

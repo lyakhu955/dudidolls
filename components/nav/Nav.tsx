@@ -5,10 +5,11 @@ import { useStore, useCartCount } from "@/lib/store";
 export default function Nav() {
   const setMenu = useStore((s) => s.setMenu);
   const setDrawer = useStore((s) => s.setDrawer);
+  const introFinished = useStore((s) => s.introFinished);
   const cartCount = useCartCount();
 
   return (
-    <nav className="nav">
+    <nav className={`nav ${!introFinished ? "nav-hidden" : ""}`}>
       <div className="nav-left">
         <button className="nav-hamburger" onClick={() => setMenu(true)} aria-label="Apri menu">
           <svg width="20" height="14" viewBox="0 0 20 14" fill="none">
