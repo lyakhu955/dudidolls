@@ -2,7 +2,6 @@
 import { useLayoutEffect, useRef, useEffect, useState, type ReactNode } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useStore } from "@/lib/store";
-import LiquidLogo, { type LiquidLogoHandle } from "./LiquidLogo";
 
 const TOTAL_FRAMES = 304;
 const FRAME_PATH = (i: number) =>
@@ -13,7 +12,7 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const logoRef = useRef<HTMLDivElement | null>(null);
-  const liquidRef = useRef<LiquidLogoHandle | null>(null);
+  const logoInnerRef = useRef<HTMLDivElement | null>(null);
   const cueRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -112,7 +111,16 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
             const k = p / 0.10;
             gsap.set(cueRef.current, { autoAlpha: 1 - k });
             gsap.set(logoRef.current, { autoAlpha: 1, y: 0 });
-            liquidRef.current?.setProgress(0);
+            gsap.set(logoInnerRef.current, {
+              scale: 1,
+              letterSpacing: "-0.03em",
+              filter: "blur(0px)",
+            });
+            gsap.set(stageRef.current, {
+              autoAlpha: 1,
+              scale: 1,
+              filter: "blur(0px)",
+            });
             if (introTriggeredRef.current) {
               introTriggeredRef.current = false;
               setIntroFinished(false);
@@ -122,38 +130,65 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
           else if (p < 0.70) {
             gsap.set(cueRef.current, { autoAlpha: 0 });
             gsap.set(logoRef.current, { autoAlpha: 1, y: 0 });
-            liquidRef.current?.setProgress(0);
+            gsap.set(logoInnerRef.current, {
+              scale: 1,
+              letterSpacing: "-0.03em",
+              filter: "blur(0px)",
+            });
+            gsap.set(stageRef.current, {
+              autoAlpha: 1,
+              scale: 1,
+              filter: "blur(0px)",
+            });
             if (introTriggeredRef.current) {
               introTriggeredRef.current = false;
               setIntroFinished(false);
             }
           }
-          // Phase 3 (0.70 → 0.88): liquid distortion ramps up, logo drifts
+          // Phase 3 (0.70 → 0.88): logo letter-spacing expands, scale ramps
           else if (p < 0.88) {
             const expandP = (p - 0.70) / 0.18;
             const ease = expandP * expandP;
-            gsap.set(logoRef.current, {
-              autoAlpha: 1,
-              y: -ease * 50,
+            gsap.set(logoRef.current, { autoAlpha: 1, y: -ease * 30 });
+            gsap.set(logoInnerRef.current, {
+              scale: 1 + ease * 0.35,
+              letterSpacing: `${-0.03 + ease * 0.18}em`,
+              filter: `blur(${ease * 2}px)`,
             });
-            liquidRef.current?.setProgress(expandP * 0.6);
+            gsap.set(stageRef.current, {
+              autoAlpha: 1,
+              scale: 1 + ease * 0.06,
+              filter: "blur(0px)",
+            });
             gsap.set(contentRef.current, { autoAlpha: 0 });
             if (introTriggeredRef.current) {
               introTriggeredRef.current = false;
               setIntroFinished(false);
             }
           }
-          // Phase 4 (0.88 → 1.0): liquid dissolves, content breathes in
+          // Phase 4 (0.88 → 1.0): mask scale-up — logo explodes, stage dissolves into content
           else {
             const rP = (p - 0.88) / 0.12;
-            const stageE = rP;
+            const eased = 1 - Math.pow(1 - rP, 3);
             const contentE = rP * (2 - rP);
-            gsap.set(logoRef.current, { y: -50 - stageE * 30 });
-            liquidRef.current?.setProgress(0.6 + rP * 0.4);
-            gsap.set(stageRef.current, { autoAlpha: 1 - stageE });
+            gsap.set(logoRef.current, {
+              autoAlpha: 1 - eased,
+              y: -30 - eased * 50,
+            });
+            gsap.set(logoInnerRef.current, {
+              scale: 1.35 + eased * 4.5,
+              letterSpacing: `${0.15 + eased * 0.3}em`,
+              filter: `blur(${2 + eased * 14}px)`,
+            });
+            gsap.set(stageRef.current, {
+              autoAlpha: 1 - eased,
+              scale: 1.06 + eased * 0.18,
+              filter: `blur(${eased * 8}px)`,
+            });
             gsap.set(contentRef.current, {
               autoAlpha: contentE,
               y: `${(1 - contentE) * 40}px`,
+              scale: 0.96 + contentE * 0.04,
             });
             if (rP > 0.3 && !introTriggeredRef.current) {
               introTriggeredRef.current = true;
@@ -285,13 +320,51 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
           <div
             ref={logoRef}
             style={{
-              width: "min(78vw, 1100px)",
-              height: "clamp(110px, 16vw, 240px)",
               willChange: "transform, opacity",
               transformOrigin: "center center",
             }}
           >
-            <LiquidLogo ref={liquidRef} accent="var(--accent)" />
+            <div
+              ref={logoInnerRef}
+              className="hero-intro-logo-text"
+              style={{
+                fontFamily: "var(--serif)",
+                fontSize: "clamp(64px, 10vw, 160px)",
+                lineHeight: 0.9,
+                letterSpacing: "-0.03em",
+                color: "#f4ede1",
+                textShadow:
+                  "0 4px 30px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.4)",
+                whiteSpace: "nowrap",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transformOrigin: "center center",
+                willChange: "transform, letter-spacing, filter",
+              }}
+            >
+              {"dudi".split("").map((ch, i) => (
+                <span
+                  key={`d-${i}`}
+                  className="char"
+                  style={{ ["--i" as string]: i }}
+                >
+                  {ch}
+                </span>
+              ))}
+              {"dolls".split("").map((ch, i) => (
+                <span
+                  key={`s-${i}`}
+                  className="char char--accent"
+                  style={{
+                    ["--i" as string]: i + 4,
+                    marginLeft: i === 0 ? "-0.04em" : undefined,
+                  }}
+                >
+                  {ch}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 

@@ -975,6 +975,45 @@ section { position: relative; }
   50% { transform: translateY(8px); opacity: 1; }
 }
 
+/* ─── Cinematic per-char reveal (hero intro logo) ─── */
+.hero-intro-logo-text .char {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(14px);
+  transform: translateY(0.55em) scale(1.18) translateZ(0);
+  animation: char-cinematic-reveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(0.05s * var(--i) + 0.15s);
+  will-change: transform, opacity, filter;
+}
+.hero-intro-logo-text .char--accent {
+  font-style: italic;
+  color: var(--accent);
+}
+@keyframes char-cinematic-reveal {
+  0% {
+    opacity: 0;
+    filter: blur(14px);
+    transform: translateY(0.55em) scale(1.18);
+  }
+  55% {
+    opacity: 0.85;
+    filter: blur(3px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-intro-logo-text .char {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
 .scissors-svg {
   position: absolute;
   left: 50%;
