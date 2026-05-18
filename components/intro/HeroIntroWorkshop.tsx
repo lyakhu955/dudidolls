@@ -93,15 +93,24 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
     };
 
     const ctxGSAP = gsap.context(() => {
-      // quickSetters: faster than gsap.set per tick (no string parsing/lookup)
+      // quickSetters bypass gsap.set string parsing per tick
       const setCueAlpha = gsap.quickSetter(cueRef.current, "autoAlpha");
       const setLogoAlpha = gsap.quickSetter(logoRef.current, "autoAlpha");
       const setLogoY = gsap.quickSetter(logoRef.current, "y", "px");
       const setLogoScaleX = gsap.quickSetter(logoInnerRef.current, "scaleX");
       const setLogoScaleY = gsap.quickSetter(logoInnerRef.current, "scaleY");
+      const setLogoBlur = gsap.quickSetter(
+        logoInnerRef.current,
+        "filter"
+      ) as (val: string) => void;
       const setStageAlpha = gsap.quickSetter(stageRef.current, "autoAlpha");
+      const setStageScale = gsap.quickSetter(stageRef.current, "scale");
+      const setStageBlur = gsap.quickSetter(stageRef.current, "filter") as (
+        val: string
+      ) => void;
       const setContentAlpha = gsap.quickSetter(contentRef.current, "autoAlpha");
       const setContentY = gsap.quickSetter(contentRef.current, "y", "px");
+      const setContentScale = gsap.quickSetter(contentRef.current, "scale");
 
       let lastPhase = -1;
 
@@ -128,8 +137,12 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
               setLogoY(0);
               setLogoScaleX(1);
               setLogoScaleY(1);
+              setLogoBlur("blur(0px)");
               setStageAlpha(1);
+              setStageScale(1);
+              setStageBlur("blur(0px)");
               setContentAlpha(0);
+              setContentScale(1);
               if (introTriggeredRef.current) {
                 introTriggeredRef.current = false;
                 setIntroFinished(false);
@@ -142,8 +155,12 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
               setLogoY(0);
               setLogoScaleX(1);
               setLogoScaleY(1);
+              setLogoBlur("blur(0px)");
               setStageAlpha(1);
+              setStageScale(1);
+              setStageBlur("blur(0px)");
               setContentAlpha(0);
+              setContentScale(1);
               if (introTriggeredRef.current) {
                 introTriggeredRef.current = false;
                 setIntroFinished(false);
@@ -152,13 +169,16 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
           } else if (phase === 3) {
             const expandP = (p - 0.70) / 0.18;
             const ease = expandP * expandP;
-            // scaleX widens letters (replaces letter-spacing — no reflow)
+            // scaleX widens letters (no letter-spacing reflow)
             setLogoScaleX(1 + ease * 0.55);
             setLogoScaleY(1 + ease * 0.15);
             setLogoY(-ease * 30);
+            setLogoBlur(`blur(${ease * 2}px)`);
+            setStageScale(1 + ease * 0.06);
             if (phaseChanged) {
               setLogoAlpha(1);
               setStageAlpha(1);
+              setStageBlur("blur(0px)");
               setContentAlpha(0);
               if (introTriggeredRef.current) {
                 introTriggeredRef.current = false;
@@ -173,9 +193,13 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
             setLogoY(-30 - eased * 50);
             setLogoScaleX(1.55 + eased * 4.5);
             setLogoScaleY(1.15 + eased * 2.0);
+            setLogoBlur(`blur(${2 + eased * 14}px)`);
             setStageAlpha(1 - eased);
+            setStageScale(1.06 + eased * 0.18);
+            setStageBlur(`blur(${eased * 8}px)`);
             setContentAlpha(contentE);
             setContentY((1 - contentE) * 40);
+            setContentScale(0.96 + contentE * 0.04);
             if (rP > 0.3 && !introTriggeredRef.current) {
               introTriggeredRef.current = true;
               setIntroFinished(true);
@@ -328,7 +352,7 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
                 alignItems: "center",
                 justifyContent: "center",
                 transformOrigin: "center center",
-                willChange: "transform",
+                willChange: "transform, filter",
                 backfaceVisibility: "hidden",
               }}
             >
