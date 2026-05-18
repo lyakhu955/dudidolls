@@ -55,7 +55,6 @@ export const useStore = create<Store>((set, get) => ({
   setDrawer: (open) => set({ drawerOpen: open }),
   setMenu: (open) => set({ menuOpen: open }),
   setModal: (doll) => set({ modalDoll: doll }),
-  setIntroFinished: (v) => set({ introFinished: v }),
 
   showToast: (message) => {
     if (toastTimer) clearTimeout(toastTimer);
