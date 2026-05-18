@@ -142,11 +142,7 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
             const k = p / 0.10;
             gsap.set(cueRef.current, { autoAlpha: 1 - k });
             gsap.set(logoRef.current, { autoAlpha: 1, y: 0 });
-            gsap.set(logoInnerRef.current, {
-              scale: 1,
-              letterSpacing: "-0.03em",
-              filter: "blur(0px)",
-            });
+            gsap.set(logoInnerRef.current, { scale: 1 });
             gsap.set(stageRef.current, {
               autoAlpha: 1,
               scale: 1,
@@ -161,11 +157,7 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
           else if (p < 0.70) {
             gsap.set(cueRef.current, { autoAlpha: 0 });
             gsap.set(logoRef.current, { autoAlpha: 1, y: 0 });
-            gsap.set(logoInnerRef.current, {
-              scale: 1,
-              letterSpacing: "-0.03em",
-              filter: "blur(0px)",
-            });
+            gsap.set(logoInnerRef.current, { scale: 1 });
             gsap.set(stageRef.current, {
               autoAlpha: 1,
               scale: 1,
@@ -176,20 +168,15 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
               setIntroFinished(false);
             }
           }
-          // Phase 3 (0.70 → 0.88): logo letter-spacing expands, scale ramps
+          // Phase 3 (0.70 → 0.88): logo scale ramps gently (transform-only, GPU)
           else if (p < 0.88) {
             const expandP = (p - 0.70) / 0.18;
             const ease = expandP * expandP;
-            gsap.set(logoRef.current, { autoAlpha: 1, y: -ease * 30 });
-            gsap.set(logoInnerRef.current, {
-              scale: 1 + ease * 0.35,
-              letterSpacing: `${-0.03 + ease * 0.18}em`,
-              filter: `blur(${ease * 2}px)`,
-            });
+            gsap.set(logoRef.current, { autoAlpha: 1, y: -ease * 12 });
+            gsap.set(logoInnerRef.current, { scale: 1 + ease * 0.12 });
             gsap.set(stageRef.current, {
               autoAlpha: 1,
-              scale: 1 + ease * 0.06,
-              filter: "blur(0px)",
+              scale: 1 + ease * 0.02,
             });
             gsap.set(contentRef.current, { autoAlpha: 0 });
             if (introTriggeredRef.current) {
@@ -197,29 +184,24 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
               setIntroFinished(false);
             }
           }
-          // Phase 4 (0.88 → 1.0): mask scale-up — logo explodes, stage dissolves into content
+          // Phase 4 (0.88 → 1.0): light fade-out — no blur, no extreme scale
           else {
             const rP = (p - 0.88) / 0.12;
-            const eased = 1 - Math.pow(1 - rP, 3);
-            const contentE = rP * (2 - rP);
+            const eased = rP * (2 - rP); // ease-out quad
+            const contentE = rP * rP;    // ease-in quad
             gsap.set(logoRef.current, {
               autoAlpha: 1 - eased,
-              y: -30 - eased * 50,
+              y: -12 - eased * 20,
             });
-            gsap.set(logoInnerRef.current, {
-              scale: 1.35 + eased * 4.5,
-              letterSpacing: `${0.15 + eased * 0.3}em`,
-              filter: `blur(${2 + eased * 14}px)`,
-            });
+            gsap.set(logoInnerRef.current, { scale: 1.12 + eased * 0.08 });
             gsap.set(stageRef.current, {
               autoAlpha: 1 - eased,
-              scale: 1.06 + eased * 0.18,
-              filter: `blur(${eased * 8}px)`,
+              scale: 1.02 + eased * 0.02,
             });
             gsap.set(contentRef.current, {
               autoAlpha: contentE,
-              y: `${(1 - contentE) * 40}px`,
-              scale: 0.96 + contentE * 0.04,
+              y: `${(1 - contentE) * 24}px`,
+              scale: 0.98 + contentE * 0.02,
             });
             if (rP > 0.3 && !introTriggeredRef.current) {
               introTriggeredRef.current = true;
@@ -371,7 +353,7 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
                 alignItems: "center",
                 justifyContent: "center",
                 transformOrigin: "center center",
-                willChange: "transform, letter-spacing, filter",
+                willChange: "transform, opacity",
               }}
             >
               {"dudi".split("").map((ch, i) => (
