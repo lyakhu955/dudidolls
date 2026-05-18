@@ -2,6 +2,7 @@
 import { useLayoutEffect, useRef, useEffect, useState, type ReactNode } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useStore } from "@/lib/store";
+import LiquidLogo, { type LiquidLogoHandle } from "./LiquidLogo";
 
 const TOTAL_FRAMES = 304;
 const FRAME_PATH = (i: number) =>
@@ -12,6 +13,7 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const logoRef = useRef<HTMLDivElement | null>(null);
+  const liquidRef = useRef<LiquidLogoHandle | null>(null);
   const cueRef = useRef<HTMLDivElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -105,67 +107,50 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
           // Draw the matching frame
           drawFrame(p);
 
-          // Phase 1 (0 → 0.10): scroll cue fades, logo visible at top
+          // Phase 1 (0 → 0.10): scroll cue fades, logo settled
           if (p < 0.10) {
             const k = p / 0.10;
             gsap.set(cueRef.current, { autoAlpha: 1 - k });
-            gsap.set(logoRef.current, {
-              autoAlpha: 1,
-              scale: 1,
-              y: 0,
-              letterSpacing: "-0.03em",
-              filter: "blur(0px)",
-            });
+            gsap.set(logoRef.current, { autoAlpha: 1, y: 0 });
+            liquidRef.current?.setProgress(0);
             if (introTriggeredRef.current) {
               introTriggeredRef.current = false;
               setIntroFinished(false);
             }
           }
-          // Phase 2 (0.10 → 0.70): camera enters workshop, logo stays anchored at top
+          // Phase 2 (0.10 → 0.70): camera enters workshop
           else if (p < 0.70) {
             gsap.set(cueRef.current, { autoAlpha: 0 });
-            gsap.set(logoRef.current, {
-              autoAlpha: 1,
-              scale: 1,
-              y: 0,
-              letterSpacing: "-0.03em",
-              filter: "blur(0px)",
-            });
+            gsap.set(logoRef.current, { autoAlpha: 1, y: 0 });
+            liquidRef.current?.setProgress(0);
             if (introTriggeredRef.current) {
               introTriggeredRef.current = false;
               setIntroFinished(false);
             }
           }
-          // Phase 3 (0.70 → 0.88): logo expands letter-spacing, blurs and drifts up cinematically
+          // Phase 3 (0.70 → 0.88): liquid distortion ramps up, logo drifts
           else if (p < 0.88) {
             const expandP = (p - 0.70) / 0.18;
-            const ease = expandP * expandP; // ease-in quadratic
+            const ease = expandP * expandP;
             gsap.set(logoRef.current, {
-              autoAlpha: 1 - expandP * 0.5,
-              y: -ease * 60,
-              letterSpacing: `${-0.03 + ease * 0.2}em`,
-              filter: `blur(${ease * 4}px)`,
+              autoAlpha: 1,
+              y: -ease * 50,
             });
+            liquidRef.current?.setProgress(expandP * 0.6);
             gsap.set(contentRef.current, { autoAlpha: 0 });
             if (introTriggeredRef.current) {
               introTriggeredRef.current = false;
               setIntroFinished(false);
             }
           }
-          // Phase 4 (0.88 → 1.0): stage dissolves, content breathes in, nav appears
+          // Phase 4 (0.88 → 1.0): liquid dissolves, content breathes in
           else {
             const rP = (p - 0.88) / 0.12;
             const stageE = rP;
             const contentE = rP * (2 - rP);
-            gsap.set(logoRef.current, {
-              autoAlpha: 1 - stageE,
-              y: -60 - stageE * 40,
-              letterSpacing: "0.2em",
-              filter: `blur(${4 + stageE * 4}px)`,
-            });
-            gsap.set(stageRef.current, {
-              autoAlpha: 1 - stageE,
-            });
+            gsap.set(logoRef.current, { y: -50 - stageE * 30 });
+            liquidRef.current?.setProgress(0.6 + rP * 0.4);
+            gsap.set(stageRef.current, { autoAlpha: 1 - stageE });
             gsap.set(contentRef.current, {
               autoAlpha: contentE,
               y: `${(1 - contentE) * 40}px`,
@@ -300,31 +285,13 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
           <div
             ref={logoRef}
             style={{
-              fontFamily: "var(--serif)",
-              fontSize: "clamp(64px, 10vw, 160px)",
-              lineHeight: 0.9,
-              letterSpacing: "-0.03em",
-              color: "#f4ede1",
-              textShadow:
-                "0 4px 30px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.4)",
+              width: "min(78vw, 1100px)",
+              height: "clamp(110px, 16vw, 240px)",
               willChange: "transform, opacity",
-              whiteSpace: "nowrap",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
               transformOrigin: "center center",
             }}
           >
-            <span style={{ fontWeight: 400 }}>dudi</span>
-            <span
-              style={{
-                fontStyle: "italic",
-                color: "var(--accent)",
-                marginLeft: "-0.04em",
-              }}
-            >
-              dolls
-            </span>
+            <LiquidLogo ref={liquidRef} accent="var(--accent)" />
           </div>
         </div>
 
