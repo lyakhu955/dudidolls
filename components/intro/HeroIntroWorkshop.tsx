@@ -93,108 +93,96 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
     };
 
     const ctxGSAP = gsap.context(() => {
+      // quickSetters: faster than gsap.set per tick (no string parsing/lookup)
+      const setCueAlpha = gsap.quickSetter(cueRef.current, "autoAlpha");
+      const setLogoAlpha = gsap.quickSetter(logoRef.current, "autoAlpha");
+      const setLogoY = gsap.quickSetter(logoRef.current, "y", "px");
+      const setLogoScaleX = gsap.quickSetter(logoInnerRef.current, "scaleX");
+      const setLogoScaleY = gsap.quickSetter(logoInnerRef.current, "scaleY");
+      const setStageAlpha = gsap.quickSetter(stageRef.current, "autoAlpha");
+      const setContentAlpha = gsap.quickSetter(contentRef.current, "autoAlpha");
+      const setContentY = gsap.quickSetter(contentRef.current, "y", "px");
+
+      let lastPhase = -1;
+
       const st = ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
         end: "+=600vh",
-        scrub: 1.2,
+        scrub: 1,
         pin: true,
         pinSpacing: true,
+        invalidateOnRefresh: true,
         onUpdate: (self) => {
           const p = self.progress;
 
-          // Draw the matching frame
           drawFrame(p);
 
-          // Phase 1 (0 → 0.10): scroll cue fades, logo settled
-          if (p < 0.10) {
-            const k = p / 0.10;
-            gsap.set(cueRef.current, { autoAlpha: 1 - k });
-            gsap.set(logoRef.current, { autoAlpha: 1, y: 0 });
-            gsap.set(logoInnerRef.current, {
-              scale: 1,
-              letterSpacing: "-0.03em",
-              filter: "blur(0px)",
-            });
-            gsap.set(stageRef.current, {
-              autoAlpha: 1,
-              scale: 1,
-              filter: "blur(0px)",
-            });
-            if (introTriggeredRef.current) {
-              introTriggeredRef.current = false;
-              setIntroFinished(false);
+          const phase = p < 0.10 ? 1 : p < 0.70 ? 2 : p < 0.88 ? 3 : 4;
+          const phaseChanged = phase !== lastPhase;
+
+          if (phase === 1) {
+            setCueAlpha(1 - p / 0.10);
+            if (phaseChanged) {
+              setLogoAlpha(1);
+              setLogoY(0);
+              setLogoScaleX(1);
+              setLogoScaleY(1);
+              setStageAlpha(1);
+              setContentAlpha(0);
+              if (introTriggeredRef.current) {
+                introTriggeredRef.current = false;
+                setIntroFinished(false);
+              }
             }
-          }
-          // Phase 2 (0.10 → 0.70): camera enters workshop
-          else if (p < 0.70) {
-            gsap.set(cueRef.current, { autoAlpha: 0 });
-            gsap.set(logoRef.current, { autoAlpha: 1, y: 0 });
-            gsap.set(logoInnerRef.current, {
-              scale: 1,
-              letterSpacing: "-0.03em",
-              filter: "blur(0px)",
-            });
-            gsap.set(stageRef.current, {
-              autoAlpha: 1,
-              scale: 1,
-              filter: "blur(0px)",
-            });
-            if (introTriggeredRef.current) {
-              introTriggeredRef.current = false;
-              setIntroFinished(false);
+          } else if (phase === 2) {
+            if (phaseChanged) {
+              setCueAlpha(0);
+              setLogoAlpha(1);
+              setLogoY(0);
+              setLogoScaleX(1);
+              setLogoScaleY(1);
+              setStageAlpha(1);
+              setContentAlpha(0);
+              if (introTriggeredRef.current) {
+                introTriggeredRef.current = false;
+                setIntroFinished(false);
+              }
             }
-          }
-          // Phase 3 (0.70 → 0.88): logo letter-spacing expands, scale ramps
-          else if (p < 0.88) {
+          } else if (phase === 3) {
             const expandP = (p - 0.70) / 0.18;
             const ease = expandP * expandP;
-            gsap.set(logoRef.current, { autoAlpha: 1, y: -ease * 30 });
-            gsap.set(logoInnerRef.current, {
-              scale: 1 + ease * 0.35,
-              letterSpacing: `${-0.03 + ease * 0.18}em`,
-              filter: `blur(${ease * 2}px)`,
-            });
-            gsap.set(stageRef.current, {
-              autoAlpha: 1,
-              scale: 1 + ease * 0.06,
-              filter: "blur(0px)",
-            });
-            gsap.set(contentRef.current, { autoAlpha: 0 });
-            if (introTriggeredRef.current) {
-              introTriggeredRef.current = false;
-              setIntroFinished(false);
+            // scaleX widens letters (replaces letter-spacing — no reflow)
+            setLogoScaleX(1 + ease * 0.55);
+            setLogoScaleY(1 + ease * 0.15);
+            setLogoY(-ease * 30);
+            if (phaseChanged) {
+              setLogoAlpha(1);
+              setStageAlpha(1);
+              setContentAlpha(0);
+              if (introTriggeredRef.current) {
+                introTriggeredRef.current = false;
+                setIntroFinished(false);
+              }
             }
-          }
-          // Phase 4 (0.88 → 1.0): mask scale-up — logo explodes, stage dissolves into content
-          else {
+          } else {
             const rP = (p - 0.88) / 0.12;
-            const eased = 1 - Math.pow(1 - rP, 3);
+            const eased = 1 - (1 - rP) * (1 - rP) * (1 - rP);
             const contentE = rP * (2 - rP);
-            gsap.set(logoRef.current, {
-              autoAlpha: 1 - eased,
-              y: -30 - eased * 50,
-            });
-            gsap.set(logoInnerRef.current, {
-              scale: 1.35 + eased * 4.5,
-              letterSpacing: `${0.15 + eased * 0.3}em`,
-              filter: `blur(${2 + eased * 14}px)`,
-            });
-            gsap.set(stageRef.current, {
-              autoAlpha: 1 - eased,
-              scale: 1.06 + eased * 0.18,
-              filter: `blur(${eased * 8}px)`,
-            });
-            gsap.set(contentRef.current, {
-              autoAlpha: contentE,
-              y: `${(1 - contentE) * 40}px`,
-              scale: 0.96 + contentE * 0.04,
-            });
+            setLogoAlpha(1 - eased);
+            setLogoY(-30 - eased * 50);
+            setLogoScaleX(1.55 + eased * 4.5);
+            setLogoScaleY(1.15 + eased * 2.0);
+            setStageAlpha(1 - eased);
+            setContentAlpha(contentE);
+            setContentY((1 - contentE) * 40);
             if (rP > 0.3 && !introTriggeredRef.current) {
               introTriggeredRef.current = true;
               setIntroFinished(true);
             }
           }
+
+          lastPhase = phase;
         },
       });
 
@@ -340,7 +328,8 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
                 alignItems: "center",
                 justifyContent: "center",
                 transformOrigin: "center center",
-                willChange: "transform, letter-spacing, filter",
+                willChange: "transform",
+                backfaceVisibility: "hidden",
               }}
             >
               {"dudi".split("").map((ch, i) => (
