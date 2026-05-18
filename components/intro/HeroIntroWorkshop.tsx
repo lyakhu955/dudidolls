@@ -3,9 +3,9 @@ import { useLayoutEffect, useRef, useEffect, useState, type ReactNode } from "re
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useStore } from "@/lib/store";
 
-const TOTAL_FRAMES = 121;
+const TOTAL_FRAMES = 304;
 const FRAME_PATH = (i: number) =>
-  `/frames/workshop/frame_${String(i).padStart(3, "0")}.jpg`;
+  `/frames/workshop/frame_${String(i).padStart(3, "0")}.webp`;
 
 export default function HeroIntroWorkshop({ children }: { children: ReactNode }) {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -74,9 +74,11 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
 
-    // Set canvas internal resolution to match frames
-    canvas.width = 960;
-    canvas.height = 540;
+    // Set canvas internal resolution to match frames (HD)
+    canvas.width = 1920;
+    canvas.height = 1080;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
 
     const drawFrame = (progress: number) => {
       const idx = Math.min(
