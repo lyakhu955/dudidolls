@@ -312,10 +312,6 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          willChange: "transform, opacity, filter",
-          transform: "translateZ(0)",
-          backfaceVisibility: "hidden",
-          contain: "layout paint",
         }}
       >
         {/* Canvas draws the frame sequence */}
@@ -403,8 +399,6 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
             style={{
               willChange: "transform, opacity",
               transformOrigin: "center center",
-              transform: "translateZ(0)",
-              backfaceVisibility: "hidden",
             }}
           >
             <div
@@ -423,8 +417,7 @@ export default function HeroIntroWorkshop({ children }: { children: ReactNode })
                 alignItems: "center",
                 justifyContent: "center",
                 transformOrigin: "center center",
-                willChange: "transform, filter",
-                contain: "layout paint",
+                willChange: "transform, letter-spacing, filter",
               }}
             >
               {"dudi".split("").map((ch, i) => (
